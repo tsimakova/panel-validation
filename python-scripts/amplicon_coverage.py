@@ -62,26 +62,30 @@ def add_prediction(data_sorted: pd.DataFrame, y_predict: np.ndarray, under_ratio
 
 
 def amp_scatterplot(sample_name: str, data_sorted: pd.DataFrame, under_amplicons: pd.DataFrame,
-                    over_amplicons: pd.DataFrame, output_dir: pathlib.PosixPath):
+                    over_amplicons: pd.DataFrame, output_dir: pathlib.PosixPath, figure_width: float,
+                    figure_height: float):
     """
     :param sample_name: sample name for output files
     :param data_sorted: sorted pd.DataFrame
     :param under_amplicons: pd.DataFrame with undercovered amplicons
     :param over_amplicons: pd.DataFrame with overcovered amplicons
     :param output_dir: The path to output files
+    :param figure_width: The width of the linear regression plot
+    :param figure_height: The height of the linear regression plot
     """
     # Save amplicon coverage scatter plot:
     sns.set_style("darkgrid")
-    sns.set(rc={'figure.figsize': (10, 6)})
+    sns.set(rc={'figure.figsize': (figure_width, figure_height)})
     sns.scatterplot(data=data_sorted, x="amp_serial_num", y="amp_proc", color='grey', linewidth=0, size=3)
     sns.scatterplot(data=under_amplicons, x='amp_serial_num', y='amp_proc', color='red', linewidth=0, size=3)
     sns.scatterplot(data=over_amplicons, x='amp_serial_num', y='amp_proc', color='green', linewidth=0, size=3)
     sns.lineplot(data=data_sorted, x="amp_serial_num", y="amp_proc_predict", color="purple")
-    plt.title('Profile of amplicon coverage', size=20)
+    plt.title(f"Profile of amplicon coverage ({sample_name} results)", size=20)
     plt.xlabel('Amplicon number', size=15)
     plt.ylabel('Amplicon coverage', size=15)
     plt.legend([], [], frameon=False)
     plt.savefig(f"{output_dir}/{sample_name}_amplicon_coverage_scatterplot.png")
+    plt.clf()
 
 
 def create_output_table(sample_name: str, under_amplicons: pd.DataFrame, over_amplicons: pd.DataFrame,
@@ -102,7 +106,7 @@ def create_output_table(sample_name: str, under_amplicons: pd.DataFrame, over_am
     over_amplicons.to_csv(f"{output_dir}/{sample_name}_overcovered_amplicons.txt", sep="\t", index=False)
 
 
-def main(input_files, threshold, under_ratio, over_ratio, output_dir):
+def main(input_files, threshold, under_ratio, over_ratio, output_dir, figure_width, figure_height):
     for el in input_files:
         # Get an input file name for output file names
         sample_name = str(el).split("/")[-1].split(".tsv")[0]
@@ -110,7 +114,7 @@ def main(input_files, threshold, under_ratio, over_ratio, output_dir):
         predictions = lin_regression(sample_name, table, threshold)
         if str(predictions) != "stop the loop":
             table, under, over = add_prediction(table, predictions, under_ratio, over_ratio)
-            amp_scatterplot(sample_name, table, under, over, output_dir)
+            amp_scatterplot(sample_name, table, under, over, output_dir, figure_width, figure_height)
             create_output_table(sample_name, under, over, output_dir)
         else:
             continue
@@ -127,6 +131,11 @@ if __name__ == "__main__":
                         help="The path to input files")
     parser.add_argument("-d", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to the output files directory")
+    parser.add_argument("-w", "--figure_width", type=float, default=10,
+                        help="The width of the linear regression plot")
+    parser.add_argument("-e", "--figure_height", type=float, default=6,
+                        help="The height of the linear regression plot")
     args = parser.parse_args()
     main(input_files=args.input_files, threshold=args.threshold, under_ratio=args.under_ratio,
-         over_ratio=args.over_ratio, output_dir=args.output_dir)
+         over_ratio=args.over_ratio, output_dir=args.output_dir, figure_width=args.figure_width,
+         figure_height=args.figure_height)

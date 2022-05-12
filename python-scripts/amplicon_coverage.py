@@ -23,8 +23,9 @@ def create_table(input_file: pathlib.PosixPath) -> pd.DataFrame:
     return data_sorted
 
 
-def lin_regression(data_sorted: pd.DataFrame, threshold: int = 0.85) -> np.ndarray:
+def lin_regression(sample_name: str, data_sorted: pd.DataFrame, threshold: int = 0.85) -> np.ndarray:
     """
+    :param sample_name: use sample name in case of low R2 coefficient
     :param data_sorted: Sorted pd.Dataframe
     :param threshold: Threshold for R2 in linear regression
     :return: np.array containing predicted number of amplicon reads
@@ -37,9 +38,11 @@ def lin_regression(data_sorted: pd.DataFrame, threshold: int = 0.85) -> np.ndarr
     y_predict = lin_reg.predict(x)
     r2 = r2_score(y, y_predict)
     # Raise an error and stop if the observed R2 score is less than R2 threshold:
-    if r2 < threshold:
-        raise ValueError(f"R2 is less than threshold {threshold}")
-    return y_predict
+    if r2 >= threshold:
+        return y_predict
+    else:
+        print(f"R2 for {sample_name} coverage results is less than threshold {threshold}")
+        return "stop the loop"
 
 
 def add_prediction(data_sorted: pd.DataFrame, y_predict: np.ndarray, under_ratio: int = 0.5, over_ratio: int = 1.3):
@@ -58,9 +61,10 @@ def add_prediction(data_sorted: pd.DataFrame, y_predict: np.ndarray, under_ratio
     return data_sorted, under_amplicons, over_amplicons
 
 
-def amp_scatterplot(data_sorted: pd.DataFrame, under_amplicons: pd.DataFrame, over_amplicons: pd.DataFrame,
-                    output_dir: pathlib.PosixPath):
+def amp_scatterplot(sample_name: str, data_sorted: pd.DataFrame, under_amplicons: pd.DataFrame,
+                    over_amplicons: pd.DataFrame, output_dir: pathlib.PosixPath):
     """
+    :param sample_name: sample name for output files
     :param data_sorted: sorted pd.DataFrame
     :param under_amplicons: pd.DataFrame with undercovered amplicons
     :param over_amplicons: pd.DataFrame with overcovered amplicons
@@ -77,11 +81,13 @@ def amp_scatterplot(data_sorted: pd.DataFrame, under_amplicons: pd.DataFrame, ov
     plt.xlabel('Amplicon number', size=15)
     plt.ylabel('Amplicon coverage', size=15)
     plt.legend([], [], frameon=False)
-    plt.savefig(f"{output_dir}/Amplicon_coverage_scatterplot.png")
+    plt.savefig(f"{output_dir}/{sample_name}_amplicon_coverage_scatterplot.png")
 
 
-def create_output_table(under_amplicons: pd.DataFrame, over_amplicons: pd.DataFrame, output_dir: pathlib.PosixPath):
+def create_output_table(sample_name: str, under_amplicons: pd.DataFrame, over_amplicons: pd.DataFrame,
+                        output_dir: pathlib.PosixPath):
     """
+    :param sample_name: sample name for output files
     :param under_amplicons: pd.DataFrame with undercovered amplicons
     :param over_amplicons: pd.DataFrame with overcovered amplicons
     :param output_dir: The path to the output files directory
@@ -92,32 +98,35 @@ def create_output_table(under_amplicons: pd.DataFrame, over_amplicons: pd.DataFr
     over_amplicons = over_amplicons.drop(["amp_proc", "amp_serial_num", "amp_proc_predict", "ratio"], axis=1)
     over_amplicons = over_amplicons.sort_index()
     # Save tables with under- and overcovered amplicons:
-    under_amplicons.to_csv(f"{output_dir}/Undercovered_amplicons.txt", sep="\t", index=False)
-    over_amplicons.to_csv(f"{output_dir}/Overcovered_amplicons.txt", sep="\t", index=False)
+    under_amplicons.to_csv(f"{output_dir}/{sample_name}_undercovered_amplicons.txt", sep="\t", index=False)
+    over_amplicons.to_csv(f"{output_dir}/{sample_name}_overcovered_amplicons.txt", sep="\t", index=False)
 
 
-def parse_args():
+def main(input_files, threshold, under_ratio, over_ratio, output_dir):
+    for el in input_files:
+        # Get an input file name for output file names
+        sample_name = str(el).split("/")[-1].split(".tsv")[0]
+        table = create_table(el)
+        predictions = lin_regression(sample_name, table, threshold)
+        if str(predictions) != "stop the loop":
+            table, under, over = add_prediction(table, predictions, under_ratio, over_ratio)
+            amp_scatterplot(sample_name, table, under, over, output_dir)
+            create_output_table(sample_name, under, over, output_dir)
+        else:
+            continue
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for searching the undercovered amplicons")
     parser.add_argument("-t", "--threshold", type=float, default=0.85, help="Threshold for R2 in linear regression")
     parser.add_argument("-u", "--under_ratio", type=float, default=0.5,
                         help="The ratio of observed to predicted number of reads for undercovered amplicons")
     parser.add_argument("-o", "--over_ratio", type=float, default=1.3,
                         help="The ratio of observed to predicted number of reads for overcovered amplicons")
-    parser.add_argument("-i", "--input_file", type=lambda p: pathlib.Path(p).absolute(),
-                        help="The path to an input file")
+    parser.add_argument("-i", "--input_files", nargs="+", type=lambda p: pathlib.Path(p).absolute(),
+                        help="The path to input files")
     parser.add_argument("-d", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to the output files directory")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    table = create_table(args.input_file)
-    predictions = lin_regression(table, args.threshold)
-    table, under, over = add_prediction(table, predictions, args.under_ratio, args.over_ratio)
-    amp_scatterplot(table, under, over, args.output_dir)
-    create_output_table(under, over, args.output_dir)
-
-
-if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+    main(input_files=args.input_files, threshold=args.threshold, under_ratio=args.under_ratio,
+         over_ratio=args.over_ratio, output_dir=args.output_dir)

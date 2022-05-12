@@ -30,7 +30,11 @@ def get_params(first_point: int, last_point: int, points: int, amp_number: int, 
         json.dump(amplicon_dict, f)
 
 
-def parse_args():
+def main(first_point, last_point, points, amp_number, mapped_reads, output_dir):
+    get_params(first_point, last_point, points, amp_number, mapped_reads, output_dir)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for subsampling parameters")
     parser.add_argument("-f", "--first_point", type=int, help="The first point among numbers of reads per amplicon")
     parser.add_argument("-l", "--last_point", type=int, help="The last point among numbers of reads per amplicon")
@@ -39,13 +43,6 @@ def parse_args():
     parser.add_argument("-m", "--mapped_reads", type=int, help="The number of mapped reads in a .bam file")
     parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to output files")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    get_params(args.first_point, args.last_point, args.points, args.amp_number, args.mapped_reads, args.output_dir)
-
-
-if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+    main(first_point=args.first_point, last_point=args.last_point, points=args.points, amp_number=args.amp_number,
+         mapped_reads=args.mapped_reads, output_dir=args.output_dir)

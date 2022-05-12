@@ -16,7 +16,7 @@ def parse_bed(qv: int, input_dir: pathlib.PosixPath, output_dir: pathlib.PosixPa
         if file.endswith('sequtils.bed'):
             filename.append(file)
     # Sort the "filename" list according to the number of reads per amplicon:
-    filename.sort(key=lambda test_string: list(map(int, re.findall(r'\d+', test_string)))[0])
+    filename.sort(key=lambda test_string: list(map(int, re.findall(r'\d+', test_string)))[-1])
     for input_filename in filename:
         dict_from_bam = {"contig": [], "start": [], "stop": [], "fwd_cov": [], "rev_cov": []}
         with open(f"{input_dir}/{input_filename}") as f:
@@ -35,20 +35,16 @@ def parse_bed(qv: int, input_dir: pathlib.PosixPath, output_dir: pathlib.PosixPa
                 lqr_file.write('\t'.join(value))
 
 
-def parse_args():
+def main(quality_threshold, input_dir, output_dir):
+    parse_bed(quality_threshold, input_dir, output_dir)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for LQR counting")
     parser.add_argument("-q", "--quality_threshold", type=int, help="The quality threshold")
     parser.add_argument("-i", "--input_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to input files directory")
     parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to output files directory")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    parse_bed(args.quality_threshold, args.input_dir, args.output_dir)
-
-
-if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+    main(quality_threshold=args.quality_threshold, input_dir=args.input_dir, output_dir=args.output_dir)

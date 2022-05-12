@@ -36,7 +36,11 @@ def cov_table(first_point: int, last_point: int, points: int, amp_number: int, o
     df.to_csv(f"{output_dir}/coverage_table.txt", sep="\t", index=True, header=True)
 
 
-def parse_args():
+def main(first_point, last_point, points, amp_number, output_dir):
+    cov_table(first_point, last_point, points, amp_number, output_dir)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for coverage table creation")
     parser.add_argument("-f", "--first_point", type=int, help="The first point among numbers of reads per amplicon")
     parser.add_argument("-l", "--last_point", type=int, help="The last point among numbers of reads per amplicon")
@@ -44,13 +48,6 @@ def parse_args():
     parser.add_argument("-a", "--amp_number", type=int, help="The number of amplicons in a panel")
     parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to output files")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    cov_table(args.first_point, args.last_point, args.points, args.amp_number, args.output_dir)
-
-
-if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+    main(first_point=args.first_point, last_point=args.last_point, points=args.points, amp_number=args.amp_number,
+         output_dir=args.output_dir)

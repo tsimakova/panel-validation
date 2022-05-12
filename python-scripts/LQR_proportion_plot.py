@@ -36,7 +36,12 @@ def lqr_plot(df: pd.DataFrame, output_dir: pathlib.PosixPath):
     plt.savefig(f"{output_dir}/LQR_proportion_plot.png")
 
 
-def parse_args():
+def main(first_point, last_point, points, input_file, output_dir):
+    df_for_plot = table_for_plot(first_point, last_point, points, input_file)
+    lqr_plot(df_for_plot, output_dir)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for plotting the LQR proportion for each point")
     parser.add_argument("-f", "--first_point", type=int, help="The first point among numbers of reads per amplicon")
     parser.add_argument("-l", "--last_point", type=int, help="The last point among numbers of reads per amplicon")
@@ -44,14 +49,6 @@ def parse_args():
     parser.add_argument("-i", "--input_file", help="The path to input file")
     parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to output file directory")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    df_for_plot = table_for_plot(args.first_point, args.last_point, args.points, args.input_file)
-    lqr_plot(df_for_plot, args.output_dir)
-
-
-if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+    main(first_point=args.first_point, last_point=args.last_point, points=args.points, input_file=args.input_file,
+         output_dir=args.output_dir)

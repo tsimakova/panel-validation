@@ -19,8 +19,8 @@ def table_for_plot(first_point: int, last_point: int, points: int, input_file: p
     read_per_amp = []
     for i in range(first_point, last_point + step, step):
         read_per_amp.append(i)
-    df["Reads per amplicon"] = read_per_amp
-    df["Proportion of LQRs"] = lqr_prop[0]
+    df["Reads_per_amplicon"] = read_per_amp
+    df["Proportion_of_LQRs"] = lqr_prop[0]
     return df
 
 

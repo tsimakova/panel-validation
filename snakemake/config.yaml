@@ -1,0 +1,39 @@
+# Enter the name of TSV file(s) without extension:
+cov_analysis_result: ["VF_input"]
+amplicon_type: ["undercovered", "overcovered"]
+# Enter the absolute path to working directory:
+run_dir: /media/maria/_home1/parseq/snakemake_test_project/test_directory_2
+# Enter the absolute path to the directory with output files:
+temp_dir: /media/maria/_home1/parseq/snakemake_test_project/test_directory_2/temporal_files
+# Enter the absolute path to the directory with python scripts:
+scripts_dir: /media/maria/_home1/parseq/snakemake_test_project/scripts
+# Enter the absolute path to the sequtils.jar:
+path_to_sequtils: /media/maria/_home1/parseq/snakemake_test_project/scripts/sequtils.jar
+# Enter the name of a BED file containing panel target regions
+tagret_regions: "JOSX_target_regions.bed"
+# Enter the threshold for R2 in linear regression:
+threshold: 0.85
+# Enter the ratio of observed to predicted number of reads for undercovered amplicons:
+under_ratio: 0.5
+# Enter the ratio of observed to predicted number of reads for overcovered amplicons:
+over_ratio: 1.3
+# Enter the width of the linear regression plot
+lin_reg_width: 10
+# Enter the heigth of the linear regression plot
+lin_reg_height: 6
+# Enter the width of the heatmap
+heatmap_width: 15
+# Enter the heigth of the heatmap
+heatmap_height: 6
+# Enter the name of BAM file without extension
+bam_sample: "JOSX__S20.genome_alignment"
+# Enter the first point among numbers of reads per amplicon:
+first_point: 100
+# Enter the last point among numbers of reads per amplicon:
+last_point: 1000
+# Enter the number of points
+points: 10
+# Enter the number of amplicon in a panel
+amp_number: 67
+# Enter the quality threshold for LQRs counting:
+qv: 8

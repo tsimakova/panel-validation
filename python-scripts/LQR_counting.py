@@ -2,6 +2,19 @@ import argparse
 import os
 import pathlib
 import re
+from dataclasses import dataclass
+
+
+@dataclass
+class BedParse:
+    contig: str
+    start: str
+    stop: str
+    fwd_cov: str
+    rev_cov: str
+
+    def __str__(self) -> str:
+        return '\t'.join([self.contig, self.start, self.stop, self.fwd_cov, self.rev_cov])
 
 
 def parse_bed(qv: int, input_dir: pathlib.PosixPath, output_dir: pathlib.PosixPath):
@@ -18,21 +31,14 @@ def parse_bed(qv: int, input_dir: pathlib.PosixPath, output_dir: pathlib.PosixPa
     # Sort the "filename" list according to the number of reads per amplicon:
     filename.sort(key=lambda test_string: list(map(int, re.findall(r'\d+', test_string)))[-1])
     for input_filename in filename:
-        dict_from_bam = {"contig": [], "start": [], "stop": [], "fwd_cov": [], "rev_cov": []}
-        with open(f"{input_dir}/{input_filename}") as f:
+        out = os.path.join(output_dir, input_filename).replace("sequtils", "LQR")
+        with open(f"{input_dir}/{input_filename}") as f, open(out, "w") as lqr_file:
             table_data = [line.split() for line in f]
             for i in table_data:
                 if (float(i[4]) < qv) or ((float(i[4]) >= qv) and (float(i[5]) < qv)):
-                    dict_from_bam["contig"].append(i[0])
-                    dict_from_bam["start"].append(i[1])
-                    dict_from_bam["stop"].append(str(int(i[2])+1))
-                    dict_from_bam["fwd_cov"].append(i[4])
-                    dict_from_bam["rev_cov"].append(i[5] + "\n")
-        # If the directory for input and output files contains "sequtils" -> error
-        with open(f"{output_dir}/{input_filename}".replace("sequtils", "LQR"), "w") as lqr_file:
-            for value in zip(dict_from_bam["contig"], dict_from_bam["start"], dict_from_bam["stop"],
-                             dict_from_bam["fwd_cov"], dict_from_bam["rev_cov"]):
-                lqr_file.write('\t'.join(value))
+                    bed_string = BedParse(i[0], i[1], str(int(i[2])+1), i[4], i[5])
+                    # If the directory for input and output files contains "sequtils" -> error
+                    lqr_file.write(str(bed_string) + '\n')
 
 
 def main(quality_threshold, input_dir, output_dir):

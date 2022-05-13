@@ -88,7 +88,8 @@ rule params_for_subsampling:
         """
 
 # Enter a json file data
-jsn_data = {"100": 0.10253584928760541, "200": 0.20507169857521082, "300": 0.3076075478628162, "400": 0.41014339715042164, "500": 0.512679246438027, "600": 0.6152150957256324, "700": 0.7177509450132379, "800": 0.8202867943008433, "900": 0.9228226435884487, "1000": 0.998492876054}
+
+jsn_data = {"100": 0.07546302503303902, "233": 0.1758288483269809, "366": 0.2761946716209228, "499": 0.3765604949148647, "632": 0.4769263182088066, "765": 0.5772921415027484, "898": 0.6776579647966904, "1031": 0.7780237880906322, "1164": 0.8783896113845742, "1297": 0.978755434678516}
 
 rule bam_subsampling:
     input:
@@ -104,6 +105,7 @@ rule bam_subsampling:
         #     jsn_data = json.load(jf)
         for el in range(len(jsn_data)):
             subprocess.Popen(["samtools", "view", "-s", str(jsn_data[list(jsn_data.keys())[el]]), "-b", input[0], "-o", output[el]])
+        time.sleep(5)
 
 
 rule run_sequtils:
@@ -120,6 +122,7 @@ rule run_sequtils:
     run:
         for el in range(params.points):
             subprocess.Popen(["java", "-jar", params.sequtils_path, "regions", "-t", params.target_path, "-b", input[el], "-o", output[el]])
+            time.sleep(20)
         time.sleep(100)
 
 
@@ -193,10 +196,12 @@ rule create_LQRs_plot:
         f_point=config["first_point"],
         l_point=config["last_point"],
         points=config["points"],
-        output_dir=config["run_dir"]
+        output_dir=config["run_dir"],
+        width = config["lqr_plot_width"],
+        height = config["lqr_plot_height"]
     shell:
         """
-        python3 {params.script_path} -f {params.f_point} -l {params.l_point} -p {params.points} -i {input} -o {params.output_dir}
+        python3 {params.script_path} -f {params.f_point} -l {params.l_point} -p {params.points} -i {input} -o {params.output_dir} -w {params.width} -e {params.height}
         """
 
 

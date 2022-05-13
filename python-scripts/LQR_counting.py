@@ -31,8 +31,9 @@ def parse_bed(qv: int, input_dir: pathlib.PosixPath, output_dir: pathlib.PosixPa
     # Sort the "filename" list according to the number of reads per amplicon:
     filename.sort(key=lambda test_string: list(map(int, re.findall(r'\d+', test_string)))[-1])
     for input_filename in filename:
+        inp = os.path.join(input_dir, input_filename)
         out = os.path.join(output_dir, input_filename).replace("sequtils", "LQR")
-        with open(f"{input_dir}/{input_filename}") as f, open(out, "w") as lqr_file:
+        with open(inp, "r") as f, open(out, "w") as lqr_file:
             table_data = [line.split() for line in f]
             for i in table_data:
                 if (float(i[4]) < qv) or ((float(i[4]) >= qv) and (float(i[5]) < qv)):

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pathlib
 import seaborn as sns
+import os.path
 
 
 def table_for_plot(first_point: int, last_point: int, points: int, input_file: pathlib.PosixPath) -> pd.DataFrame:
@@ -17,7 +18,7 @@ def table_for_plot(first_point: int, last_point: int, points: int, input_file: p
     lqr_prop = pd.read_csv(input_file, sep="\t", header=None)
     step = (last_point - first_point) // (points - 1)
     read_per_amp = []
-    for i in range(first_point, last_point + step, step):
+    for i in range(first_point, last_point, step):
         read_per_amp.append(i)
     df["Reads_per_amplicon"] = read_per_amp
     df["Proportion_of_LQRs"] = lqr_prop[0]
@@ -32,11 +33,11 @@ def lqr_plot(df: pd.DataFrame, output_dir: pathlib.PosixPath, figure_width: floa
     :param output_dir: The path to an output file directory
     """
     sns.set(rc={'figure.figsize': (figure_width, figure_height)})
-    lqr = sns.lineplot(data=df, x="Reads per amplicon", y="Proportion of LQRs", color="purple")
+    lqr = sns.lineplot(data=df, x="Reads_per_amplicon", y="Proportion_of_LQRs", color="purple")
     lqr.set_title("Percentage of LQR in a panel target regions", fontsize=20)
     lqr.set_ylabel("Percentage", fontsize=15)
     lqr.set_xlabel("Number of reads per amplicon", fontsize=15)
-    plt.savefig(f"{output_dir}/LQR_proportion_plot.png")
+    plt.savefig(os.path.join(output_dir, "LQR_proportion_plot.png"))
 
 
 def main(first_point, last_point, points, input_file, output_dir, figure_width, figure_height):

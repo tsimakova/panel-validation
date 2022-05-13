@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import pathlib
+import os.path
 
 
 def cov_table(first_point: int, last_point: int, points: int, amp_number: int, output_dir: pathlib.PosixPath):
@@ -17,7 +18,7 @@ def cov_table(first_point: int, last_point: int, points: int, amp_number: int, o
     # Define the row names (number of reads per amplicon):
     step = (last_point - first_point) // (points - 1)
     read_per_amp = []
-    for i in range(first_point, last_point + step, step):
+    for i in range(first_point, last_point, step):
         read_per_amp.append(i)
     df.index = read_per_amp
     # Define the column names (number of reads per sample):
@@ -33,7 +34,7 @@ def cov_table(first_point: int, last_point: int, points: int, amp_number: int, o
             else:
                 df.iat[i, j] = round(df.columns[j] / (amp_number * df.index[i]) * 100, 2)
     # Save coverage table:
-    df.to_csv(f"{output_dir}/coverage_table.txt", sep="\t", index=True, header=True)
+    df.to_csv(os.path.join(output_dir, "coverage_table.txt"), sep="\t", index=True, header=True)
 
 
 def main(first_point, last_point, points, amp_number, output_dir):

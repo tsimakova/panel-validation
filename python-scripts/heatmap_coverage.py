@@ -1,4 +1,5 @@
 import argparse
+import os.path
 import matplotlib.pyplot as plt
 import pandas as pd
 import pathlib
@@ -18,7 +19,7 @@ def heatmap(input_file: pathlib.PosixPath, output_dir: pathlib.PosixPath, figure
     plot.set_xlabel('Reads per sample', fontsize=15)
     plot.set_ylabel('Reads per amplicon', fontsize=15)
     plot.set_title('Proportion of amplicons (%) with the target coverage', fontsize=15)
-    plt.savefig(f"{output_dir}/heatmap_coverage.png")
+    plt.savefig(os.path.join(output_dir, "heatmap_coverage.png"))
 
 
 def main(input_file, output_dir, figure_width, figure_height):
@@ -38,4 +39,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(input_file=args.input_file, output_dir=args.output_dir, figure_width=args.figure_width,
          figure_height=args.figure_height)
-

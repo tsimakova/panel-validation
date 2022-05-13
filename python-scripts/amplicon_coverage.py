@@ -1,4 +1,5 @@
 import argparse
+import os.path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -84,7 +85,7 @@ def amp_scatterplot(sample_name: str, data_sorted: pd.DataFrame, under_amplicons
     plt.xlabel('Amplicon number', size=15)
     plt.ylabel('Amplicon coverage', size=15)
     plt.legend([], [], frameon=False)
-    plt.savefig(f"{output_dir}/{sample_name}_amplicon_coverage_scatterplot.png")
+    plt.savefig(os.path.join(output_dir, f"{sample_name}_amplicon_coverage_scatterplot.png"))
     plt.clf()
 
 
@@ -102,8 +103,8 @@ def create_output_table(sample_name: str, under_amplicons: pd.DataFrame, over_am
     over_amplicons = over_amplicons.drop(["amp_proc", "amp_serial_num", "amp_proc_predict", "ratio"], axis=1)
     over_amplicons = over_amplicons.sort_index()
     # Save tables with under- and overcovered amplicons:
-    under_amplicons.to_csv(f"{output_dir}/{sample_name}_undercovered_amplicons.txt", sep="\t", index=False)
-    over_amplicons.to_csv(f"{output_dir}/{sample_name}_overcovered_amplicons.txt", sep="\t", index=False)
+    under_amplicons.to_csv(os.path.join(output_dir, f"{sample_name}_undercovered_amplicons.txt"), sep="\t", index=False)
+    over_amplicons.to_csv(os.path.join(output_dir, f"{sample_name}_overcovered_amplicons.txt"), sep="\t", index=False)
 
 
 def main(input_files, threshold, under_ratio, over_ratio, output_dir, figure_width, figure_height):

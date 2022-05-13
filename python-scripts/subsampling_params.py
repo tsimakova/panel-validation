@@ -1,6 +1,7 @@
 import argparse
 import json
 import pathlib
+import os.path
 
 
 def get_params(first_point: int, last_point: int, points: int, amp_number: int, mapped_reads: int,
@@ -26,7 +27,7 @@ def get_params(first_point: int, last_point: int, points: int, amp_number: int, 
     for el in amplicon_dict.keys():
         amplicon_dict[el] = amplicon_dict[el] / mapped_reads
     # Make a .json file with parameters for a subsequent subsampling
-    with open(f"{output_dir}/subsampling_params.json", 'w') as f:
+    with open(os.path.join(output_dir, "subsampling_params.json"), 'w') as f:
         json.dump(amplicon_dict, f)
 
 

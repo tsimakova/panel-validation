@@ -24,21 +24,24 @@ def table_for_plot(first_point: int, last_point: int, points: int, input_file: p
     return df
 
 
-def lqr_plot(df: pd.DataFrame, output_dir: pathlib.PosixPath):
+def lqr_plot(df: pd.DataFrame, output_dir: pathlib.PosixPath, figure_width: float, figure_height: float):
     """
+    :param figure_width: The width of the LQR plot
+    :param figure_height: The height of the LQR plot
     :param df: pd.DataFrame containing the proportion of LQRs for each point
     :param output_dir: The path to an output file directory
     """
-    sns.set(rc={'figure.figsize': (15, 8)})
+    sns.set(rc={'figure.figsize': (figure_width, figure_height)})
     lqr = sns.lineplot(data=df, x="Reads per amplicon", y="Proportion of LQRs", color="purple")
-    lqr.set(title="Percentage of LQR in a panel target regions")
-    lqr.set(ylabel="Percentage", xlabel="Reads per amplicon")
+    lqr.set_title("Percentage of LQR in a panel target regions", fontsize=20)
+    lqr.set_ylabel("Percentage", fontsize=15)
+    lqr.set_xlabel("Number of reads per amplicon", fontsize=15)
     plt.savefig(f"{output_dir}/LQR_proportion_plot.png")
 
 
-def main(first_point, last_point, points, input_file, output_dir):
+def main(first_point, last_point, points, input_file, output_dir, figure_width, figure_height):
     df_for_plot = table_for_plot(first_point, last_point, points, input_file)
-    lqr_plot(df_for_plot, output_dir)
+    lqr_plot(df_for_plot, output_dir, figure_width, figure_height)
 
 
 if __name__ == "__main__":
@@ -49,6 +52,8 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--input_file", help="The path to input file")
     parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to output file directory")
+    parser.add_argument("-w", "--figure_width", type=float, default=10, help="The width of the LQR plot")
+    parser.add_argument("-e", "--figure_height", type=float, default=6, help="The height of the LQR plot")
     args = parser.parse_args()
     main(first_point=args.first_point, last_point=args.last_point, points=args.points, input_file=args.input_file,
-         output_dir=args.output_dir)
+         output_dir=args.output_dir, figure_width=args.figure_width, figure_height=args.figure_height)

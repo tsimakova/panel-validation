@@ -14,11 +14,14 @@ def table_for_plot(first_point: int, last_point: int, points: int, input_file: p
     :param input_file: The path to an input file
     :return pd.DataFrame for subsequent plotting
     """
+    # Check the first and last points
+    if last_point - first_point <= 0:
+        raise ValueError("The last point is less than or equal to the first point")
     df = pd.DataFrame()
     lqr_prop = pd.read_csv(input_file, sep="\t", header=None)
     step = (last_point - first_point) // (points - 1)
     read_per_amp = []
-    for i in range(first_point, last_point, step):
+    for i in range(first_point, last_point + 1, step):
         read_per_amp.append(i)
     df["Reads_per_amplicon"] = read_per_amp
     df["Proportion_of_LQRs"] = lqr_prop[0]

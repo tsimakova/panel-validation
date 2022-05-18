@@ -14,10 +14,13 @@ def get_params(first_point: int, last_point: int, points: int, amp_number: int, 
     :param mapped_reads: The number of mapped reads in a BAM file
     :param output_dir: The path to output files
     """
+    # Check the first and last points
+    if last_point - first_point <= 0:
+        raise ValueError("The last point is less than or equal to the first point")
     # Count the number of reads per amplicon for each point and create a dictionary:
     step = (last_point - first_point) // (points - 1)
     read_per_amp = []
-    for i in range(first_point, last_point + step, step):
+    for i in range(first_point, last_point + 1, step):
         read_per_amp.append(i)
     amplicon_dict = dict.fromkeys(read_per_amp, None)
     # Count the number of reads per sample for each point:

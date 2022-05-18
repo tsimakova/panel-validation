@@ -43,7 +43,7 @@ def lin_regression(sample_name: str, data_sorted: pd.DataFrame, threshold: int =
         return y_predict
     else:
         print(f"R2 for {sample_name} coverage results is less than threshold {threshold}")
-        return "stop the loop"
+        return y_predict
 
 
 def add_prediction(data_sorted: pd.DataFrame, y_predict: np.ndarray, under_ratio: int = 0.5, over_ratio: int = 1.3):
@@ -113,12 +113,9 @@ def main(input_files, threshold, under_ratio, over_ratio, output_dir, figure_wid
         sample_name = str(el).split("/")[-1].split(".tsv")[0]
         table = create_table(el)
         predictions = lin_regression(sample_name, table, threshold)
-        if str(predictions) != "stop the loop":
-            table, under, over = add_prediction(table, predictions, under_ratio, over_ratio)
-            amp_scatterplot(sample_name, table, under, over, output_dir, figure_width, figure_height)
-            create_output_table(sample_name, under, over, output_dir)
-        else:
-            continue
+        table, under, over = add_prediction(table, predictions, under_ratio, over_ratio)
+        amp_scatterplot(sample_name, table, under, over, output_dir, figure_width, figure_height)
+        create_output_table(sample_name, under, over, output_dir)
 
 
 if __name__ == "__main__":

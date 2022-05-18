@@ -1,5 +1,9 @@
 # Enter the name of TSV file(s) without extension:
 cov_analysis_result: ["CMJGD_S19_128-11AA_amplicon.cov"]
+# Enter the name of BAM file without extension:
+bam_sample: "CMJGD_S19_128-11AA_alignment"
+# Enter the name of a BED file containing panel target regions
+tagret_regions: "155841_target_regions.bed"
 amplicon_type: ["undercovered", "overcovered"]
 # Enter the absolute path to working directory:
 run_dir: /media/maria/_home1/parseq/snakemake_test_project/test_directory_3
@@ -9,10 +13,8 @@ temp_dir: /media/maria/_home1/parseq/snakemake_test_project/test_directory_3/tem
 scripts_dir: /media/maria/_home1/parseq/snakemake_test_project/scripts
 # Enter the absolute path to the sequtils.jar:
 path_to_sequtils: /media/maria/_home1/parseq/snakemake_test_project/scripts/sequtils.jar
-# Enter the name of a BED file containing panel target regions
-tagret_regions: "155841_target_regions.bed"
 # Enter the threshold for R2 in linear regression:
-threshold: 0.65
+threshold: 0.85
 # Enter the ratio of observed to predicted number of reads for undercovered amplicons:
 under_ratio: 0.5
 # Enter the ratio of observed to predicted number of reads for overcovered amplicons:
@@ -29,8 +31,6 @@ heatmap_height: 6
 lqr_plot_width: 10
 # Enter the height of LQR plot :
 lqr_plot_height: 6
-# Enter the name of BAM file without extension:
-bam_sample: "CMJGD_S19_128-11AA_alignment"
 # Enter the first point among numbers of reads per amplicon:
 first_point: 100
 # Enter the last point among numbers of reads per amplicon:
@@ -41,3 +41,5 @@ points: 10
 amp_number: 394
 # Enter the quality threshold for LQRs counting:
 qv: 64
+# Enter correction coefficient for the number of reads per amplicon
+correction_coeff: 15

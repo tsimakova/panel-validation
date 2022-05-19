@@ -1,14 +1,12 @@
-# Enter the name of TSV file(s) without extension:
+# Enter the prefix of TSV file(s):
 cov_analysis_result: ["CMJGD_S19_128-11AA_amplicon.cov"]
-# Enter the name of BAM file without extension:
+# Enter the prefix of BAM file without extension:
 bam_sample: "CMJGD_S19_128-11AA_alignment"
 # Enter the name of a BED file containing panel target regions
 tagret_regions: "155841_target_regions.bed"
 amplicon_type: ["undercovered", "overcovered"]
 # Enter the absolute path to working directory:
 run_dir: /media/maria/_home1/parseq/snakemake_test_project/test_directory_3
-# Enter the absolute path to the directory with output files:
-temp_dir: /media/maria/_home1/parseq/snakemake_test_project/test_directory_3/temporal_files
 # Enter the absolute path to the directory with python scripts:
 scripts_dir: /media/maria/_home1/parseq/snakemake_test_project/scripts
 # Enter the absolute path to the sequtils.jar:

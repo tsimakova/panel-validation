@@ -8,16 +8,18 @@ rule all:
     input:
         expand(os.path.join("{run_dir}", "{sample}_{type}_amplicons.txt"), sample = config["cov_analysis_result"],
                             run_dir=config["run_dir"], type=config["amplicon_type"]) ,
-        os.path.join(config["temp_dir"], f'{config["bam_sample"]}_number_of_mapped_reads.txt') ,
-        os.path.join(config["temp_dir"], "subsampling_params.json") ,
-        expand(os.path.join("{temp_dir}", "{bam_sample}_sub{index}.bam"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"]))) ,
-        expand(os.path.join("{temp_dir}", "{bam_sample}_sub{index}_sequtils.bed"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"]))) ,
-        expand(os.path.join("{temp_dir}", "{bam_sample}_sub{index}_LQR.bed"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"]))) ,
-        os.path.join(config["temp_dir"],"total_number_of_lqr_positions.txt") ,
-        os.path.join(config["temp_dir"],"lqr_proportions.txt") ,
+        os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt') ,
+        os.path.join(config["run_dir"], "temporal_files", "subsampling_params.json") , #
+        expand(os.path.join("{run_dir}","temporal_files","{bam_sample}_sub{index}.bam"),bam_sample=config["bam_sample"],
+                            run_dir=config["run_dir"],index=range(int(config["points"]))) ,
+        expand(os.path.join("{run_dir}","temporal_files","{bam_sample}_sub{index}_sequtils.bed"),
+                            bam_sample=config["bam_sample"], run_dir=config["run_dir"],
+                            index=range(int(config["points"]))) ,
+        expand(os.path.join("{run_dir}","temporal_files","{bam_sample}_sub{index}_LQR.bed"),
+                            bam_sample=config["bam_sample"], run_dir=config["run_dir"],
+                            index=range(int(config["points"]))) ,
+        os.path.join(config["run_dir"], "temporal_files", "total_number_of_lqr_positions.txt") ,
+        os.path.join(config["run_dir"], "temporal_files", "lqr_proportions.txt") ,
         os.path.join(config["run_dir"],"LQR_proportion_plot.png") ,
         os.path.join(config["run_dir"],"coverage_table.txt") ,
         os.path.join(config["run_dir"],"heatmap_coverage.png")
@@ -52,7 +54,7 @@ rule count_mapped_reads:
     input:
         os.path.join(config["run_dir"], f'{config["bam_sample"]}.bam')
     output:
-        os.path.join(config["temp_dir"], f'{config["bam_sample"]}_number_of_mapped_reads.txt')
+        os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt')
     message:
         "Run samtools to count the number of mapped reads in a BAM file"
     shell:
@@ -65,7 +67,8 @@ def return_number_of_mapped_reads(wildcards):
     """
     :return: the number of mapped reads
     """
-    with open(os.path.join(config["temp_dir"], f'{config["bam_sample"]}_number_of_mapped_reads.txt'), "r") as bam_reads:
+    with open(os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt'),
+              "r") as bam_reads:
         for line in bam_reads:
             mapped_reads = int(line)
     return mapped_reads
@@ -73,10 +76,9 @@ def return_number_of_mapped_reads(wildcards):
 
 rule params_for_subsampling:
     input:
-        # rules.count_mapped_reads.output
-        os.path.join(config["temp_dir"],f'{config["bam_sample"]}_number_of_mapped_reads.txt')
+        os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt')
     output:
-        os.path.join(config["temp_dir"], "subsampling_params.json")
+        os.path.join(config["run_dir"], "temporal_files", "subsampling_params.json")
     message:
         "Count the percentage of reads in files after subsampling"
     params:
@@ -86,7 +88,7 @@ rule params_for_subsampling:
         points=config["points"],
         amp_number=config["amp_number"],
         m_reads= lambda wildcards: return_number_of_mapped_reads(wildcards),
-        output_dir=config["temp_dir"]
+        output_dir=os.path.join(config["run_dir"], "temporal_files")
     shell:
         """
         python3 {params.script_path} -f {params.f_point} -l {params.l_point} -p {params.points} -a {params.amp_number} \
@@ -98,7 +100,7 @@ def return_json_data(wildcards):
     """
     :return: the list of percentage for subsampling
     """
-    with open(os.path.join(config["temp_dir"], "subsampling_params.json"), "r") as js_data:
+    with open(os.path.join(config["run_dir"], "temporal_files", "subsampling_params.json"), "r") as js_data:
         a = json.load(js_data)
         json_values = []
         for elem in a:
@@ -111,8 +113,8 @@ rule bam_subsampling:
         os.path.join(config["run_dir"], f'{config["bam_sample"]}.bam') ,
         rules.params_for_subsampling.output
     output:
-        expand(os.path.join("{temp_dir}","{bam_sample}_sub{index}.bam"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
     message:
         "Use samtools for BAM file subsampling"
     params:
@@ -125,11 +127,11 @@ rule bam_subsampling:
 
 rule run_sequtils:
     input:
-        expand(os.path.join("{temp_dir}","{bam_sample}_sub{index}.bam"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
     output:
-        expand(os.path.join("{temp_dir}","{bam_sample}_sub{index}_sequtils.bed"),bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"],index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_sequtils.bed"),
+                            bam_sample=config["bam_sample"], run_dir=config["run_dir"], index=range(int(config["points"])))
     message:
         "Run sequtils"
     params:
@@ -146,18 +148,18 @@ rule run_sequtils:
 
 rule count_lqr:
     input:
-        expand(os.path.join("{temp_dir}","{bam_sample}_sub{index}_sequtils.bed"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_sequtils.bed"),
+                            bam_sample=config["bam_sample"], run_dir=config["run_dir"], index=range(int(config["points"])))
     output:
-        expand(os.path.join("{temp_dir}","{bam_sample}_sub{index}_LQR.bed"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_LQR.bed"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
     message:
         "Count the positions with low sequence quality"
     params:
         qv = config["qv"],
         script_path = os.path.join(config["scripts_dir"], "LQR_counting.py"),
-        run_dir= config["temp_dir"],
-        out_dir= config["temp_dir"]
+        run_dir= os.path.join(config["run_dir"], "temporal_files"),
+        out_dir= os.path.join(config["run_dir"], "temporal_files")
     shell:
         """
         python3 {params.script_path} -q {params.qv} -i {params.run_dir} -o {params.out_dir}
@@ -168,7 +170,7 @@ rule count_total_number_positions:
     input:
         os.path.join(config["run_dir"], config["tagret_regions"])
     output:
-        os.path.join(config["temp_dir"], "total_number_of_lqr_positions.txt")
+        os.path.join(config["run_dir"], "temporal_files", "total_number_of_lqr_positions.txt")
     message:
         "Count the number of positions (nucleotides) in a BED file with target regions"
     shell:
@@ -181,7 +183,7 @@ def return_total_number_positions(wildcards):
     """
     :return: the number of analysed positions
     """
-    with open(os.path.join(config["temp_dir"], "total_number_of_lqr_positions.txt"), "r") as total_position_number:
+    with open(os.path.join(config["run_dir"], "temporal_files", "total_number_of_lqr_positions.txt"), "r") as total_position_number:
         for line in total_position_number:
             num = int(line)
     return num
@@ -189,10 +191,10 @@ def return_total_number_positions(wildcards):
 
 rule lqr_proportion:
     input:
-        expand(os.path.join("{temp_dir}","{bam_sample}_sub{index}_LQR.bed"), bam_sample=config["bam_sample"],
-                            temp_dir=config["temp_dir"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_LQR.bed"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
     output:
-        os.path.join(config["temp_dir"], "lqr_proportions.txt")
+        os.path.join(config["run_dir"], "temporal_files", "lqr_proportions.txt")
     message:
         "Count the proportion of positions with low sequence quality"
     params:
@@ -206,7 +208,7 @@ rule lqr_proportion:
 
 rule create_LQRs_plot:
     input:
-        os.path.join(config["temp_dir"], "lqr_proportions.txt")
+        os.path.join(config["run_dir"], "temporal_files", "lqr_proportions.txt")
     output:
         os.path.join(config["run_dir"], "LQR_proportion_plot.png")
     message:

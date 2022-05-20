@@ -2,31 +2,18 @@
 
 ## Requirements
 
-* awk>=5.1.0
-* cat>=8.32
-* openjdk>=11.0.13
-* python>=3.9.12
-* samtools>=1.11
+* awk==5.1.0
+* cat==8.32
+* openjdk==11.0.13
+* python==3.9.12
+* samtools==1.11
 * sequtils
-* snakemake>=7.3.8
-* matplotlib>=3.5.1
-* seaborn>=0.11.2
-* pandas>=1.4.0
-* scikit-learn>=1.0.2
-* numpy
-
-
-Python ≥3.5
-Snakemake ≥5.24.1
-BWA 0.7
-SAMtools 1.9
-Pysam 0.15
-BCFtools 1.9
-Graphviz 2.42
-Jinja2 2.11
-NetworkX 2.5
-Matplotlib 3.3
-
+* snakemake==7.3.8
+* matplotlib==3.5.1
+* seaborn==0.11.2
+* pandas==1.4.0
+* scikit-learn==1.0.2
+* numpy==1.22.3
 
 ## Installation 
 

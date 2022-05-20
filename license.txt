@@ -1,0 +1,6 @@
+[15:04] Tamara Simakova
+/* Copyright (C) Parseq Lab , Ltd - All Rights Reserved
+* Unauthorized copying of this file, via any medium is strictly prohibited
+* Proprietary and confidential
+* Written by Maria Lopatkina, Ivan Pjankov, May 2022
+*/

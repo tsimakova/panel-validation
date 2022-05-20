@@ -37,7 +37,7 @@ def lqr_plot(df: pd.DataFrame, output_dir: pathlib.PosixPath, figure_width: floa
     """
     sns.set(rc={'figure.figsize': (figure_width, figure_height)})
     lqr = sns.lineplot(data=df, x="Reads_per_amplicon", y="Proportion_of_LQRs", color="purple")
-    lqr.set_title("Percentage of LQR in a panel target regions", fontsize=20)
+    lqr.set_title("Percentage of LQR in panel target regions", fontsize=20)
     lqr.set_ylabel("Percentage", fontsize=15)
     lqr.set_xlabel("Number of reads per amplicon", fontsize=15)
     plt.savefig(os.path.join(output_dir, "LQR_proportion_plot.png"))

@@ -7,13 +7,13 @@
 * openjdk==11.0.13
 * python==3.9.12
 * samtools==1.11
-* sequtils
 * snakemake==7.3.8
 * matplotlib==3.5.1
 * seaborn==0.11.2
 * pandas==1.4.0
 * scikit-learn==1.0.2
 * numpy==1.22.3
+* sequtils
 
 ## Installation 
 
@@ -25,57 +25,57 @@ Install dependencies
 
 ### 1. Script for searching for under- and overcovered amplicons
 
-This script is looking for under- and overcovered amplicons. It needs the coverage analysis results (VariFind or/and OncoScope). Using linear regression, the script predicts the relative amplicon coverage. Then the ratio of actual and predicted coverage is counting. In the case the ratio is less then 0.5 (set as a parameter), the amplicon is considered to be undercovered.
-When running the script you will be requested to select the path to VariFind or/and OncoScope coverage analysis results, output files directory, threshold for linear regression coefficient, threshold ratio for under- and overcovered amplicons, and width and height of received plot.
-When the script completed, we received a file with under- and overcovered amplicons, as well as a linear regression plot for our amplicons (undercovered amplicons are marked in red, overcovered - in green).
+This script is looking for under- and overcovered amplicons. It needs the coverage analysis results (VariFind or/and OncoScope). Using linear regression, the script predicts the relative amplicon coverage. Then the ratio of observed and predicted coverage is counting. In the case the ratio is less then 0.5 (set as a parameter), the amplicon is considered to be undercovered.
 
+When running the script you will be requested to specify the path to VariFind or/and OncoScope coverage analysis results, output files directory, threshold for linear regression coefficient, threshold ratio for under- and overcovered amplicons, and width and height of linear regression plot.
+When the script completed, we received a file with under- and overcovered amplicons, as well as a linear regression plot for analysed amplicons (in a picture below undercovered amplicons are marked in red, overcovered - in green).
+
+![Amplicons coverage](output_examples/amplicon_coverage_scatterplot.png)
 
 ### Input
-
-* -i, \--input_files: The path to TSV file(s), containing coverage analysis results (VariFind, OncoScope)
-* -d, \--output_dir: The path to the output files directory
-* -t, \--threshold: Threshold for R2 in linear regression
-* -u, \--under_ratio: The ratio of observed to predicted number of reads for undercovered amplicons
-* -o, \--over_ratio: The ratio of observed to predicted number of reads for overcovered amplicons
-* -w, \--figure_width: The width of the linear regression plot
-* -e, \--figure_height: The height of the linear regression plot
-
+```commandline
+-i, --input_files: The path to TSV file(s), containing coverage analysis results (VariFind, OncoScope)
+-d, --output_dir: The path to the output files directory
+-t, --threshold: Threshold for R2 in linear regression (default: 0.85)
+-u, --under_ratio: The ratio of observed to predicted relative coverage for undercovered amplicons (default: 0.5)
+-o, --over_ratio: The ratio of observed to predicted relative coverage  for overcovered amplicons (default: 1.3)
+-w, --figure_width: The width of the linear regression plot (default: 10)
+-e, --figure_height: The height of the linear regression plot (default: 6)
+```
 
 ### Run script
 
 ```commandline
-python3  amplicon_coverage.py 
+python3  amplicon_coverage.py -i <input_files_dir> -d <output_files_dir> -t 0.85 -u 0.5 -o 1.3 -w 10 -e 6
 ```
 
 ### Output
 
-* ```commandline 
-  <TSV-file_prefix>_undercovered_amplicons.txt 
-  ```
-* ```commandline 
-  <TSV-file_prefix>_overrcovered_amplicons.txt
-  ```
-* ```commandline 
-  <TSV-file_prefix>_amplicon_coverage_scatterplot.png
-  ```
+```commandline 
+<TSV-file_prefix>_undercovered_amplicons.txt 
+<TSV-file_prefix>_overcovered_amplicons.txt
+<TSV-file_prefix>_amplicon_coverage_scatterplot.png
+```
 
 ### 2. Script for selecting the subsampling parameters
 
-This script calculates the parameters for BAM subsampling - the percentage of reads that should remain in the initial BAM file after subsampling, and saves the result in a JSON file. When running the script you will be requested to select the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in the panel, and the number of mapped reads in a BAM file. 
+This script calculates the parameters for BAM subsampling - the percentage of reads that should remain in the initial BAM file after subsampling, and saves the result in a JSON file.
+
+When running the script you will be requested to select the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in the panel, and the number of mapped reads in a BAM file. 
 
 ### Input
-
-* -f, \--first_point: The first point among numbers of reads per amplicon
-* -l, \--last_point: The last point among numbers of reads per amplicon
-* -p, \--points: The number of points (numbers of reads per amplicon)
-* -a, \--amp_number: The number of amplicons in a panel
-* -m, \--mapped_reads: The number of mapped reads in a BAM file
-* -o, \--output_dir: The path to output files
-
+```commandline
+-f, --first_point: The first point among numbers of reads per amplicon
+-l, --last_point: The last point among numbers of reads per amplicon
+-p, --points: The number of points (numbers of reads per amplicon)
+-a, --amp_number: The number of amplicons in a panel
+-m, --mapped_reads: The number of mapped reads in a BAM file
+-o, --output_dir: The path to output files
+```
 ### Run script
 
 ```commandline
-python3  subsampling_params.py
+python3  subsampling_params.py -f <first_point> -l <last_point> -p <number_of_points> -a <number_of_amplicons> -m <number_of_mapped_reads> -o <output_files_directory>
 ```
 
 ### Output
@@ -87,18 +87,20 @@ subsampling_params.json
 
 ### 3. Script for counting low quality regions (LQRs)
 
-This script extracts low quality regions (LQR) from 'sequtils regions' results and writes these regions into a new BED-file with 'LQR' suffix. Quality value (QV) corresponds to the sequtils quality corrected coverage (QCC) threshold, i.e. 2^n. When running the script you will be requested to select quality value, input directory with BED files and the output folder.
+This script extracts low quality regions (LQR) from 'sequtils regions' results and writes these regions into a new BED-file with 'LQR' suffix. Quality value (QV) corresponds to the sequtils quality corrected coverage (QCC) threshold, i.e. 2^n.
+
+When running the script you will be requested to select quality threshold, input directory with BED files and the folder for putput files.
 
 ### Input
-
-* -q, \--quality_threshold: The sequencing quality threshold
-* -i, \--input_dir: The path to input BED files directory containing the output of sequtils.jar
-* -o, \--output_dir: The path to output files directory
-
+```commandline
+-q, --quality_threshold: The sequencing quality threshold
+-i, --input_dir: The path to input BED files directory containing the output of sequtils.jar
+-o, --output_dir: The path to output files directory
+```
 ### Run script
 
 ```commandline
-python3 LQR_counting.py
+python3 LQR_counting.py -q <quality_value> -i <input_files_dir> -o <output_files_dir>
 ```
 
 ### Output
@@ -110,24 +112,29 @@ python3 LQR_counting.py
 
 ### 4. Script for plotting the percentage of LQRs for each point (number of reads per amplicon)
 
-This script plots the percentage of LQRs for each number of selected points (the number of reads per amplicon). To run, it needs a TXT file that contains the proportion of positions that belong to the region with low sequencing quality for each point. When running the script you will be requested to select the path to input TXT file, output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, and the width and height of received plot. When the script completed, we received a PNG file, containing the plot of LQR proportion in a target region. 
+This script plots the percentage of LQRs for each selected points (the number of reads per amplicon). To run, it needs a TXT file that contains the proportion of positions that belong to the region with low sequencing quality for each point.
 
+When running the script you will be requested to select the path to input TXT file, output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, and the width and height of LQR percentage plot.
+
+When the script completed, we received a PNG file, containing the plot of LQR proportion in target regions. 
+
+![LQR_proportion_plot](output_examples/LQR_proportion_plot.png)
 
 ### Input
-
-* -f, \--first_point: The first point among numbers of reads per amplicon
-* -l, \--last_point: The last point among numbers of reads per amplicon
-* -p, \--points: The number of points (numbers of reads per amplicon)
-* -i, \--input_file: The path to input TXT file, proportion of positions that belong to the region with low sequencing quality for each point
-* -o, \--output_dir: The path to output files
-* -w, \--figure_width: The width of the LQR plot
-* -e, \--figure_height: The height of the LQR plot
-
+```commandline
+-f, --first_point: The first point among numbers of reads per amplicon
+-l, --last_point: The last point among numbers of reads per amplicon
+-p, --points: The number of points (numbers of reads per amplicon)
+-i, --input_file: The path to input TXT file, proportion of positions that belong to the region with low sequencing quality for each point
+-o, --output_dir: The path to output files
+-w, --figure_width: The width of the LQR plot (default: 10)
+-e, --figure_height: The height of the LQR plot (default: 6)
+```
 
 ### Run script
 
 ```commandline
-python3 LQR_proportion_plot.py
+python3 LQR_proportion_plot.py -i <input_file> -o <output_file_dir> -f <first_point> -l <last_point> -p <number_of_points> -w 10 -e 6
 ```
 
 ### Output
@@ -139,20 +146,22 @@ LQR_proportion_plot.png
 
 ### 5. Script for creating the table for calculating the number of reads per sample
 
-This script creates the table for calculating the proportion of amplicons with the target coverage. Row names correspond to the number of reads per amplicon, column names - to the number of reads per sample (taking into account the correction coefficient, which is set as a parameter). This table allows the user to chose an appropriate number of reads per sample and calculate how many samples could be multiplexing on a sequencing run. When running the script you will be requested to select the output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in a panel, and a correction coefficient. When the script completed, we received a TXT file, containing the proportion of amplicons (%) with the target coverage.
+This script creates the table for selection the number of reads per sample according to amplicon coverage. Row names correspond to the number of reads per amplicon, column names - to the number of reads per sample (taking into account the correction coefficient, which is set as a parameter). This table allows the user to choose an appropriate number of reads per sample and calculate how many samples could be multiplexing on a sequencing run.
 
+When running the script you will be requested to select the output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in a panel, and a correction coefficient. When the script completed, we received a TXT file, containing the proportion of amplicons (%) with the target coverage.
 
-* -f, \--first_point: The first point among numbers of reads per amplicon
-* -l, \--last_point: The last point among numbers of reads per amplicon
-* -p, \--points: The number of points (numbers of reads per amplicon)
-* -a, \--amp_number: The number of amplicons in a panel
-* -с, \--correction: The correction coefficient for the number of reads per sample
-* -o, \--output_dir: The path to output files
-
+```commandline
+-f, --first_point: The first point among numbers of reads per amplicon
+-l, --last_point: The last point among numbers of reads per amplicon
+-p, --points: The number of points (numbers of reads per amplicon)
+-a, --amp_number: The number of amplicons in a panel
+-с, --correction: The correction coefficient for the number of reads per sample (default: 15)
+-o, --output_dir: The path to output files
+```
 ### Run script
 
 ```commandline
-python3 coverage_table.py
+python3 coverage_table.py -o <output_file_dir> -f <first_point> -l <last_point> -p <number_of_points> -a <number_of_amplicons> -c 15
 ```
 
 ### Output
@@ -164,18 +173,22 @@ coverage_table.txt
 
 ### 6. Script for visualization of the table for calculating the number of reads per sample
 
-This script creates the heatmap of proportions of amplicons (%) with the target coverage. To run, it needs a TXT file that contains table for calculating the number of reads per sample. When running the script you will be requested to select the path to input TXT file, output file directory, and the width and height of a heatmap. When the script completed, we received a PNG file, containing the plot of LQR proportion in a target region. 
+This script creates the heatmap of proportions of amplicons (%) with the target coverage. To run, it needs a TXT file that contains table for calculating the number of reads per sample.
 
+When running the script you will be requested to select the path to input TXT file, output file directory, and the width and height of a heatmap. When the script completed, we received a PNG file, containing the plot of LQR proportion in a target region. 
 
-* -i, \--input_file: The path to input TXT file, containing the table for calculating the number of reads per sample
-* -o, \--output_dir: The path to output files
-* -w, \--figure_width: The width of the heatmap
-* -e, \--figure_height: The height of the heatmap
+![Heatmap](output_examples/heatmap_coverage.png)
 
+```commandline
+-i, --input_file: The path to input TXT file, containing the table for calculating the number of reads per sample
+-o, --output_dir: The path to output files
+-w, --figure_width: The width of the heatmap (default: 15)
+-e, --figure_height: The height of the heatmap (default: 6)
+```
 ### Run script
 
 ```commandline
-python3 heatmap_coverage.py
+python3 heatmap_coverage.py -i <input_file> -o <output_file_dir> -w 15 -e 6
 ```
 
 ### Output
@@ -190,11 +203,11 @@ heatmap_coverage.png
 To run the snakemake pipeline, you need to put the BAM file, BED file with target regions and TSV file with coverage analysis results in a working directory and specify the path to this folder in the configuration file. You also need to enter the prefix of the BAM and TSV files, and the name of BED file (without extension), specify the path to sequtils.jar and other params. 
 
 ### Pipeline input:
-
-* \--snakefile: The path to snakefile
-* \--configfile: The path to YAML configuration file
-* \--cores: Specify the maximum number of CPU cores to be used at the same time (enter a number of cores "--cores N" or do not enter anything "--cores") 
-
+```commandline
+--snakefile: The path to Snakefile
+--configfile: The path to YAML configuration file
+--cores: Specify the maximum number of CPU cores to be used at the same time (enter a number of cores "--cores N" or do not enter anything "--cores") 
+```
 ### Run pipeline
 
 ```commandline
@@ -203,21 +216,11 @@ snakemake --snakefile Snakefile --configfile config.yaml --cores
 
 ### Pipeline output
 
-* ```commandline 
-  <TSV-file_prefix>_undercovered_amplicons.txt 
-  ```
-* ```commandline 
-  <TSV-file_prefix>_overrcovered_amplicons.txt
-  ```
-* ```commandline 
-  <TSV-file_prefix>_amplicon_coverage_scatterplot.png
-  ```
-* ```commandline 
-  LQR_proportion_plot.png 
-  ```
-* ```commandline 
-  coverage_table.txt 
-  ```
-* ```commandline 
-  heatmap_coverage.png 
-  ```
+```commandline
+<TSV-file_prefix>_undercovered_amplicons.txt 
+<TSV-file_prefix>_overrcovered_amplicons.txt
+<TSV-file_prefix>_amplicon_coverage_scatterplot.png
+LQR_proportion_plot.png
+coverage_table.txt 
+heatmap_coverage.png 
+```

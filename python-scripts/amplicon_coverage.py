@@ -50,8 +50,8 @@ def add_prediction(data_sorted: pd.DataFrame, y_predict: np.ndarray, under_ratio
     """
     :param data_sorted: Sorted pd.DataFrame
     :param y_predict: Predicted number of amplicon reads
-    :param under_ratio: The ratio of observed to predicted number of reads for undercovered amplicons
-    :param over_ratio: The ratio of observed to predicted number of reads for overcovered amplicons
+    :param under_ratio: The ratio of observed to predicted relative coverage for undercovered amplicons
+    :param over_ratio: The ratio of observed to predicted relative coverage for overcovered amplicons
     :return: sorted pd.Dataframe and tables containing the undercovered and overcovered amplicons
     """
     # Add temporal columns for predicted number of amplicon reads and ratio
@@ -122,9 +122,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for searching the undercovered amplicons")
     parser.add_argument("-t", "--threshold", type=float, default=0.85, help="Threshold for R2 in linear regression")
     parser.add_argument("-u", "--under_ratio", type=float, default=0.5,
-                        help="The ratio of observed to predicted number of reads for undercovered amplicons")
+                        help="The ratio of observed to predicted relative coverage for undercovered amplicons")
     parser.add_argument("-o", "--over_ratio", type=float, default=1.3,
-                        help="The ratio of observed to predicted number of reads for overcovered amplicons")
+                        help="The ratio of observed to predicted relative coverage for overcovered amplicons")
     parser.add_argument("-i", "--input_files", nargs="+", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to input files")
     parser.add_argument("-d", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),

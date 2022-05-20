@@ -1,46 +1,68 @@
 # Enter the prefix of TSV file or the list of several prefixes of TSV files:
 # ex. ["VF_input"] or ["VF_input", "OS_input"]
 cov_analysis_result:
+
 # Enter the prefix of BAM file:
 # ex. "NSCLC-HR-TruQ4_S23.genome_alignment"
 bam_sample:
+
 # Enter the name of a BED file containing panel target regions (with extension)
 # ex. "nsclc_target_regions.bed"
 tagret_regions:
+
 amplicon_type: ["undercovered", "overcovered"]
-# Enter the absolute path to working directory:
+
+# Enter the absolute path to working directory (put the BAM-file, BED-files with target regions and TVS file with coverage analysis result in this folder):
 run_dir:
-# Enter the absolute path to the directory with python scripts:
+
+# Enter the absolute path to python-scripts directory:
 scripts_dir:
+
 # Enter the absolute path to the sequtils.jar file:
+# ex. /some_directories/sequtils.jar
 path_to_sequtils:
+
 # Enter the threshold for R2 in linear regression:
 threshold: 0.85
+
 # Enter the ratio of observed to predicted relative coverage for undercovered amplicons:
 under_ratio: 0.5
-# Enter the ratio of observed to predicted rekative coverage for overcovered amplicons:
+
+# Enter the ratio of observed to predicted relative coverage for overcovered amplicons:
 over_ratio: 1.3
+
 # Enter the width of the linear regression plot:
 lin_reg_width: 10
+
 # Enter the height of the linear regression plot:
 lin_reg_height: 6
+
 # Enter the width of the heatmap:
 heatmap_width: 15
+
 # Enter the height of the heatmap:
 heatmap_height: 6
+
 # Enter the width of LQR plot :
 lqr_plot_width: 10
+
 # Enter the height of LQR plot :
 lqr_plot_height: 6
+
 # Enter the first point among numbers of reads per amplicon:
 first_point:
+
 # Enter the last point among numbers of reads per amplicon:
 last_point:
+
 # Enter the number of points:
 points:
+
 # Enter the number of amplicon in a panel:
 amp_number:
+
 # Enter the quality threshold for LQRs counting:
 qv:
+
 # Enter correction coefficient for the number of reads per amplicon
 correction_coeff: 15

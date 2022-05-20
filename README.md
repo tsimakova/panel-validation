@@ -200,7 +200,7 @@ heatmap_coverage.png
 
 ## Snakemake pipeline
 
-To run the snakemake pipeline, you need to put the BAM file, BED file with target regions and TSV file with coverage analysis results in a working directory and specify the path to this folder in the configuration file. You also need to enter the prefix of the BAM and TSV files, and the name of BED file (without extension), specify the path to sequtils.jar and other params. 
+To run the snakemake pipeline, you need to put the BAM file, BED file with target regions and TSV file with coverage analysis results in a working directory and specify the path to this folder in the configuration file. You also need to enter the prefix of the BAM and TSV files, and the name of BED file (with extension), specify the path to sequtils.jar and other params. 
 
 ### Pipeline input:
 ```commandline
@@ -211,7 +211,7 @@ To run the snakemake pipeline, you need to put the BAM file, BED file with targe
 ### Run pipeline
 
 ```commandline
-snakemake --snakefile Snakefile --configfile config.yaml --cores
+snakemake --snakefile panel_validation.snakefile --configfile config_panel_validation.yaml --cores
 ```
 
 ### Pipeline output

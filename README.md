@@ -46,7 +46,7 @@ When the script completed, we received a file with under- and overcovered amplic
 ### Run script
 
 ```commandline
-python3  amplicon_coverage.py -i <input_files_dir> -d <output_files_dir> -t 0.85 -u 0.5 -o 1.3 -w 10 -e 6
+python3  amplicon_coverage.py -i <input_files> -d <output_files_dir> -t 0.85 -u 0.5 -o 1.3 -w 10 -e 6
 ```
 
 ### Output
@@ -75,7 +75,7 @@ When running the script you will be requested to select the range of the number 
 ### Run script
 
 ```commandline
-python3  subsampling_params.py -f <first_point> -l <last_point> -p <number_of_points> -a <number_of_amplicons> -m <number_of_mapped_reads> -o <output_files_directory>
+python3  subsampling_params.py -f <first_point> -l <last_point> -p <number_of_points> -a <number_of_amplicons> -m <number_of_mapped_reads> -o <output_files_dir>
 ```
 
 ### Output

@@ -81,7 +81,7 @@ def amp_scatterplot(sample_name: str, data_sorted: pd.DataFrame, under_amplicons
     sns.scatterplot(data=under_amplicons, x='amp_serial_num', y='amp_proc', color='red', linewidth=0, size=3)
     sns.scatterplot(data=over_amplicons, x='amp_serial_num', y='amp_proc', color='green', linewidth=0, size=3)
     sns.lineplot(data=data_sorted, x="amp_serial_num", y="amp_proc_predict", color="purple")
-    plt.title(f"Profile of amplicon coverage ({sample_name} results)", size=20)
+    plt.title("Profile of amplicon coverage", size=20)
     plt.xlabel('Amplicon number', size=15)
     plt.ylabel('Amplicon coverage', size=15)
     plt.legend([], [], frameon=False)

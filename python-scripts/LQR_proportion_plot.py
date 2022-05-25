@@ -6,17 +6,22 @@ import seaborn as sns
 import os.path
 
 
-def table_for_plot(first_point: int, last_point: int, points: int, input_file: pathlib.PosixPath) -> pd.DataFrame:
+def table_for_plot(first_point: int, last_point: int, points: int, amp_number: int, mapped_reads: int, input_file:
+                   pathlib.PosixPath) -> pd.DataFrame:
     """
     :param first_point: The first point among numbers of reads per amplicon
     :param last_point: The last point among numbers of reads per amplicon
     :param points: The number of points
+    :param amp_number: The number of amplicons in a panel
+    :param mapped_reads: The number of mapped reads in a BAM file
     :param input_file: The path to an input file
     :return pd.DataFrame for subsequent plotting
     """
     # Check the first and last points
     if last_point - first_point <= 0:
         raise ValueError("The last point is less than or equal to the first point")
+    if mapped_reads // amp_number < last_point:
+        last_point = mapped_reads // amp_number
     df = pd.DataFrame()
     lqr_prop = pd.read_csv(input_file, sep="\t", header=None)
     step = (last_point - first_point) // (points - 1)
@@ -43,8 +48,8 @@ def lqr_plot(df: pd.DataFrame, output_dir: pathlib.PosixPath, figure_width: floa
     plt.savefig(os.path.join(output_dir, "LQR_proportion_plot.png"))
 
 
-def main(first_point, last_point, points, input_file, output_dir, figure_width, figure_height):
-    df_for_plot = table_for_plot(first_point, last_point, points, input_file)
+def main(first_point, last_point, points, amp_number, mapped_reads, input_file, output_dir, figure_width, figure_height):
+    df_for_plot = table_for_plot(first_point, last_point, points, amp_number, mapped_reads, input_file)
     lqr_plot(df_for_plot, output_dir, figure_width, figure_height)
 
 
@@ -53,11 +58,14 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--first_point", type=int, help="The first point among numbers of reads per amplicon")
     parser.add_argument("-l", "--last_point", type=int, help="The last point among numbers of reads per amplicon")
     parser.add_argument("-p", "--points", type=int, help="The number of points")
+    parser.add_argument("-a", "--amp_number", type=int, help="The number of amplicons in a panel")
+    parser.add_argument("-m", "--mapped_reads", type=int, help="The number of mapped reads in a .bam file")
     parser.add_argument("-i", "--input_file", help="The path to input file")
     parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
                         help="The path to output file directory")
     parser.add_argument("-w", "--figure_width", type=float, default=10, help="The width of the LQR plot")
     parser.add_argument("-e", "--figure_height", type=float, default=6, help="The height of the LQR plot")
     args = parser.parse_args()
-    main(first_point=args.first_point, last_point=args.last_point, points=args.points, input_file=args.input_file,
-         output_dir=args.output_dir, figure_width=args.figure_width, figure_height=args.figure_height)
+    main(first_point=args.first_point, last_point=args.last_point, points=args.points, amp_number=args.amp_number,
+         mapped_reads=args.mapped_reads, input_file=args.input_file, output_dir=args.output_dir,
+         figure_width=args.figure_width, figure_height=args.figure_height)

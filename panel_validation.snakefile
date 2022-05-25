@@ -217,18 +217,22 @@ rule create_LQRs_plot:
         script_path = os.path.join(config["scripts_dir"], "LQR_proportion_plot.py"),
         f_point=config["first_point"],
         l_point=config["last_point"],
+        amp_number=config["amp_number"],
+        m_reads= lambda wildcards: return_number_of_mapped_reads(wildcards),
         points=config["points"],
         output_dir=config["run_dir"],
         width = config["lqr_plot_width"],
         height = config["lqr_plot_height"]
     shell:
         """
-        python3 {params.script_path} -f {params.f_point} -l {params.l_point} -p {params.points} -i {input} \
-        -o {params.output_dir} -w {params.width} -e {params.height}
+        python3 {params.script_path} -f {params.f_point} -l {params.l_point} -p {params.points} -a \
+        {params.amp_number} -m {params.m_reads} -i {input} -o {params.output_dir} -w {params.width} -e {params.height}
         """
 
 
 rule create_coverage_table:
+    input:
+        os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt')
     output:
         os.path.join(config["run_dir"], "coverage_table.txt")
     message:
@@ -239,12 +243,13 @@ rule create_coverage_table:
         l_point = config["last_point"],
         points = config["points"],
         amp =  config["amp_number"],
+        m_reads= lambda wildcards: return_number_of_mapped_reads(wildcards),
         corr=config["correction_coeff"],
         output_dir = config["run_dir"]
     shell:
         """
         python3 {params.script_path} -f {params.f_point} -l {params.l_point} -p {params.points} -a {params.amp} \
-        -c {params.corr} -o {params.output_dir}
+        -m {params.m_reads} -c {params.corr} -o {params.output_dir}
         """
 
 

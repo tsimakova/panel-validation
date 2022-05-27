@@ -269,15 +269,10 @@ rule coverage_analysis:
         out_dir = os.path.join(config["run_dir"], "temporal_files")
     run:
         for el in input.bam:
-            command = """sudo cwl-runner {params.cov} --aligned_to_genome_indexed_reads {el} --designed_bed {params.amp} --reference_genome {params.ref}"""
+            command = """cwltool --outdir {params.out_dir} {params.cov} --aligned_to_genome_indexed_reads {el} \
+                         --designed_bed {params.amp} --reference_genome {params.ref}"""
             shell(command)
-        command = "mv *amplicon.cov.tsv *general_stats.json {params.out_dir}"
-        shell(command)
 
-#     shell:
-#         """
-#         sudo cwl-runner {params.cov} --aligned_to_genome_indexed_reads {input.bam} --designed_bed {params.amp} --reference_genome {params.ref}
-#         """
 
 rule create_coverage_table:
     input:
@@ -300,7 +295,7 @@ rule create_coverage_table:
         output_dir = config["run_dir"]
     shell:
         """
-        python3 {params.script_path} -t {input.tsv_files} -f {params.f_point} -l {params.l_point} -p {params.points} -a \
+        python3 {params.script_path} -t {input.tsv_files} -f {params.f_point} -l {params.l_point} -p {params.points} -a\
         {params.amp} -m {params.m_reads} -c {params.corr} -o {params.output_dir}
         """
 

@@ -20,8 +20,11 @@ def table_for_plot(first_point: int, last_point: int, points: int, amp_number: i
     # Check the first and last points
     if last_point - first_point <= 0:
         raise ValueError("The last point is less than or equal to the first point")
+    # Check that the multiplication of the maximum number of reads per amplicon and the number of amplicons in a panel
+    # does not exceed the number of reads in the bam file
     if mapped_reads // amp_number < last_point:
         last_point = mapped_reads // amp_number
+        print(f"The last point (maximum number of reads per amplicon) was changed to {last_point}")
     df = pd.DataFrame()
     lqr_prop = pd.read_csv(input_file, sep="\t", header=None)
     step = (last_point - first_point) // (points - 1)

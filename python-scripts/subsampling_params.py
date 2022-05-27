@@ -17,8 +17,11 @@ def get_params(first_point: int, last_point: int, points: int, amp_number: int, 
     # Check the first and last points
     if last_point - first_point <= 0:
         raise ValueError("The last point is less than or equal to the first point")
+    # Check that the multiplication of the maximum number of reads per amplicon and the number of amplicons in a panel
+    # does not exceed the number of reads in the bam file
     if mapped_reads // amp_number < last_point:
         last_point = mapped_reads // amp_number
+        print(f"The last point (maximum number of reads per amplicon) was changed to {last_point}")
     # Count the number of reads per amplicon for each point and create a dictionary:
     step = (last_point - first_point) // (points - 1)
     read_per_amp = []

@@ -83,7 +83,7 @@ def amp_scatterplot(sample_name: str, data_sorted: pd.DataFrame, under_amplicons
     sns.lineplot(data=data_sorted, x="amp_serial_num", y="amp_proc_predict", color="purple")
     plt.title("Profile of amplicon coverage", size=20)
     plt.xlabel('Amplicon number', size=15)
-    plt.ylabel('Amplicon coverage', size=15)
+    plt.ylabel('Relative amplicon coverage', size=15)
     plt.legend([], [], frameon=False)
     plt.savefig(os.path.join(output_dir, f"{sample_name}_amplicon_coverage_scatterplot.png"))
     plt.clf()

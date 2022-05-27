@@ -21,6 +21,11 @@ rule all:
         os.path.join(config["run_dir"], "temporal_files", "total_number_of_lqr_positions.txt") ,
         os.path.join(config["run_dir"], "temporal_files", "lqr_proportions.txt") ,
         os.path.join(config["run_dir"],"LQR_proportion_plot.png") ,
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam.bai"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"]))) ,
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.amplicon.cov.tsv"),
+                                        run_dir=config["run_dir"], bam_sample=config["bam_sample"],
+                                        index=range(int(config["points"]))) ,
         os.path.join(config["run_dir"],"coverage_table.txt") ,
         os.path.join(config["run_dir"],"heatmap_coverage.png")
 
@@ -230,9 +235,56 @@ rule create_LQRs_plot:
         """
 
 
+rule make_bai:
+    input:
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+    output:
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam.bai"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+    message:
+        "Create a BAI index"
+    run:
+        for el in input:
+            command = """samtools index -b {el}"""
+            shell(command)
+
+
+rule coverage_analysis:
+    input:
+        bam = expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"]))) ,
+        bai = expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam.bai"), run_dir=config["run_dir"],
+                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+    output:
+        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.amplicon.cov.tsv"),
+                                        run_dir=config["run_dir"], bam_sample=config["bam_sample"],
+                                        index=range(int(config["points"])))
+    message:
+        "Run coverage analysis"
+    params:
+        ref = config["ref_genome"] ,
+        cov = config["path_to_analyze_cov"] ,
+        amp = os.path.join(config["run_dir"], config["designed_amplicons"]) ,
+        out_dir = os.path.join(config["run_dir"], "temporal_files")
+    run:
+        for el in input.bam:
+            command = """sudo cwl-runner {params.cov} --aligned_to_genome_indexed_reads {el} --designed_bed {params.amp} --reference_genome {params.ref}"""
+            shell(command)
+        command = "mv *amplicon.cov.tsv *general_stats.json {params.out_dir}"
+        shell(command)
+
+#     shell:
+#         """
+#         sudo cwl-runner {params.cov} --aligned_to_genome_indexed_reads {input.bam} --designed_bed {params.amp} --reference_genome {params.ref}
+#         """
+
 rule create_coverage_table:
     input:
-        os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt')
+        map_reads = os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt') ,
+        tsv_files = expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.amplicon.cov.tsv"),
+                                        run_dir=config["run_dir"], bam_sample=config["bam_sample"],
+                                        index=range(int(config["points"])))
     output:
         os.path.join(config["run_dir"], "coverage_table.txt")
     message:
@@ -248,8 +300,8 @@ rule create_coverage_table:
         output_dir = config["run_dir"]
     shell:
         """
-        python3 {params.script_path} -f {params.f_point} -l {params.l_point} -p {params.points} -a {params.amp} \
-        -m {params.m_reads} -c {params.corr} -o {params.output_dir}
+        python3 {params.script_path} -t {input.tsv_files} -f {params.f_point} -l {params.l_point} -p {params.points} -a \
+        {params.amp} -m {params.m_reads} -c {params.corr} -o {params.output_dir}
         """
 
 

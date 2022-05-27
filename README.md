@@ -154,7 +154,7 @@ LQR_proportion_plot.png
 
 This script creates the table for selection the number of reads per sample according to amplicon coverage. Row names correspond to the number of reads per amplicon, column names - to the number of reads per sample (taking into account the correction coefficient, which is set as a parameter). This table allows the user to choose an appropriate number of reads per sample and calculate how many samples could be multiplexing on a sequencing run.
 
-When running the script you will be requested to select the output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in a panel, and a correction coefficient.
+When running the script you will be requested the input TVS files, output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in a panel, and a correction coefficient.
 
 The script also checks that the minimum number of reads per amplicon does not exceed the maximum number of reads per amplicon and that the multiplication of the maximum number of reads per amplicon and the number of amplicons in the panel does not exceed the number of reads in the BAM file.
 
@@ -185,7 +185,7 @@ coverage_table.txt
 
 ### 6. Script for visualization of the table for calculating the number of reads per sample
 
-This script creates the heatmap of proportions of amplicons (%) with the target coverage. To run, it needs several TSV files after coverage analysis.
+This script creates the heatmap of proportions of amplicons (%) with the target coverage. To run, it needs a TXT file containing the proportion of amplicons (%) with the target coverage.
 
 When running the script you will be requested to select the path to input TXT file, output file directory, and the width and height of a heatmap. When the script completed, we received a PNG file, containing the plot of LQR proportion in a target region. 
 

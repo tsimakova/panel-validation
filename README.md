@@ -1,6 +1,55 @@
 # Pipeline for a targeted gene sequencing panel validation
 
-## Requirements
+## Motivation
+**Targeted sequencing** is a rapid and cost-effective way to detect known and novel variants and is widely 
+applied in medicine. The targeted panels include specific regions of the genome that are associated with 
+a disease or phenotype of interest. By focusing only on key regions of interest, targeted gene panels 
+help reduce sequencing time and simplify data analysis.
+ 
+Targeted sequencing requires upfront selection and isolation of genes or regions of interest, typically 
+by either **PCR amplification** or hybridization-based capture methods. It should be recalled that not 
+all regions of interest are suitable for analysis. It is important to be aware of the **analytical 
+characteristics** and **limitations** when using targeted gene panels.
+
+## Aim and tasks
+The **aim** of the project is to develop a pipeline for validation of targeted gene sequencing panels. 
+The main steps of the pipeline include a searching for undercovered and overcovered amplicons, searching 
+for regions with low sequencing quality (LQRs), and generation tables for calculation of the required 
+number of reads per sample. The following **tasks** were set in order to achive the goal:
+* Get acquainted with the process of a primer panel design;
+* Get acquainted with methods, tools and reference materials for assessing the NGS data quality;
+* Build a Snakemake pipeline;
+* Test the pipeline on different designed targeted gene sequencing panels
+
+## Conclusion
+The Snakemake pipeline for a targeted gene sequencing panel validation united several Python scripts
+(described below), as well as sequtils and a cwl script for amplicon coverage analysis. 
+Obtained pipeline was successfully tested on several panels.
+
+## Installation
+
+### Snakemake Installation via Conda/Mamba
+This is the recommended way to install Snakemake, because it also enables Snakemake to handle software 
+dependencies of your workflow. Mamba installation is recommended:
+
+```commandline
+conda install -n base -c conda-forge mamba
+```
+Snakemake can be installed with all goodies needed to run in any environment and for creating interactive reports via
+
+```commandline
+conda activate base
+mamba create -c conda-forge -c bioconda -n snakemake snakemake
+```
+
+from the Bioconda channel. This will install snakemake into an isolated software environment, that has to be activated with
+
+```commandline
+conda activate snakemake
+snakemake --help
+```
+
+### Requirements
 
 * awk==5.1.0
 * cat==8.32
@@ -15,9 +64,9 @@
 * numpy==1.22.3
 * sequtils
 
-## Installation 
+### Requirements installation 
 
-Install dependencies 
+Install dependencies:
 
 ```pip install -r requirements.txt```
 

@@ -6,28 +6,28 @@ import time
 
 rule all:
     input:
-        expand(os.path.join("{run_dir}", "{sample}_{type}_amplicons.txt"), sample = config["cov_analysis_result"],
+        expand(os.path.join("{run_dir}", "OUTPUT_FILES", "{sample}_{type}_amplicons.txt"), sample = config["cov_analysis_result"],
                             run_dir=config["run_dir"], type=config["amplicon_type"]) ,
         os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt') ,
         os.path.join(config["run_dir"], "temporal_files", "subsampling_params.json") , #
-        expand(os.path.join("{run_dir}","temporal_files","{bam_sample}_sub{index}.bam"),bam_sample=config["bam_sample"],
-                            run_dir=config["run_dir"],index=range(int(config["points"]))) ,
-        expand(os.path.join("{run_dir}","temporal_files","{bam_sample}_sub{index}_sequtils.bed"),
+        expand(os.path.join("{run_dir}","temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam"),
+                            bam_sample=config["bam_sample"], run_dir=config["run_dir"],index=range(int(config["points"]))) ,
+        expand(os.path.join("{run_dir}","temporal_files", "sequtils_results", "{bam_sample}_sub{index}_sequtils.bed"),
                             bam_sample=config["bam_sample"], run_dir=config["run_dir"],
                             index=range(int(config["points"]))) ,
-        expand(os.path.join("{run_dir}","temporal_files","{bam_sample}_sub{index}_LQR.bed"),
+        expand(os.path.join("{run_dir}","temporal_files", "LQR_count_results", "{bam_sample}_sub{index}_LQR.bed"),
                             bam_sample=config["bam_sample"], run_dir=config["run_dir"],
                             index=range(int(config["points"]))) ,
         os.path.join(config["run_dir"], "temporal_files", "total_number_of_lqr_positions.txt") ,
         os.path.join(config["run_dir"], "temporal_files", "lqr_proportions.txt") ,
-        os.path.join(config["run_dir"],"LQR_proportion_plot.png") ,
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam.bai"), run_dir=config["run_dir"],
+        os.path.join(config["run_dir"], "OUTPUT_FILES", "LQR_proportion_plot.png") ,
+        expand(os.path.join("{run_dir}", "temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam.bai"),
+                            run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"]))) ,
+        expand(os.path.join("{run_dir}", "temporal_files", "coverage_analysis_results",
+                            "{bam_sample}_sub{index}.amplicon.cov.tsv"), run_dir=config["run_dir"],
                             bam_sample=config["bam_sample"], index=range(int(config["points"]))) ,
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.amplicon.cov.tsv"),
-                                        run_dir=config["run_dir"], bam_sample=config["bam_sample"],
-                                        index=range(int(config["points"]))) ,
-        os.path.join(config["run_dir"],"coverage_table.txt") ,
-        os.path.join(config["run_dir"],"heatmap_coverage.png")
+        os.path.join(config["run_dir"], "OUTPUT_FILES", "coverage_table.txt") ,
+        os.path.join(config["run_dir"], "OUTPUT_FILES", "heatmap_coverage.png")
 
 
 rule amplicon_coverage:
@@ -35,8 +35,8 @@ rule amplicon_coverage:
         expand(os.path.join("{run_dir}", "{sample}.tsv"), sample = config["cov_analysis_result"],
                             run_dir=config["run_dir"])
     output:
-        expand(os.path.join("{run_dir}", "{sample}_{type}_amplicons.txt"), sample = config["cov_analysis_result"],
-                            run_dir=config["run_dir"], type=config["amplicon_type"])
+        expand(os.path.join("{run_dir}", "OUTPUT_FILES", "{sample}_{type}_amplicons.txt"),
+                            sample = config["cov_analysis_result"], run_dir=config["run_dir"], type=config["amplicon_type"])
     message:
         "Look for under- and overcovered amplicons and create a linear regression plot"
     params:
@@ -44,7 +44,7 @@ rule amplicon_coverage:
         threshold=config["threshold"],
         under_ratio=config["under_ratio"],
         over_ratio=config["over_ratio"],
-        output_dir=config["run_dir"],
+        output_dir=os.path.join(config["run_dir"], "OUTPUT_FILES"),
         run_dir=config["run_dir"],
         width=config["lin_reg_width"],
         height=config["lin_reg_height"]
@@ -118,7 +118,7 @@ rule bam_subsampling:
         os.path.join(config["run_dir"], f'{config["bam_sample"]}.bam') ,
         rules.params_for_subsampling.output
     output:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
+        expand(os.path.join("{run_dir}", "temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
                             bam_sample=config["bam_sample"], index=range(int(config["points"])))
     message:
         "Use samtools for BAM file subsampling"
@@ -132,10 +132,10 @@ rule bam_subsampling:
 
 rule run_sequtils:
     input:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
-                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam"),
+                            run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"])))
     output:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_sequtils.bed"),
+        expand(os.path.join("{run_dir}", "temporal_files", "sequtils_results", "{bam_sample}_sub{index}_sequtils.bed"),
                             bam_sample=config["bam_sample"], run_dir=config["run_dir"], index=range(int(config["points"])))
     message:
         "Run sequtils"
@@ -153,18 +153,18 @@ rule run_sequtils:
 
 rule count_lqr:
     input:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_sequtils.bed"),
+        expand(os.path.join("{run_dir}", "temporal_files", "sequtils_results", "{bam_sample}_sub{index}_sequtils.bed"),
                             bam_sample=config["bam_sample"], run_dir=config["run_dir"], index=range(int(config["points"])))
     output:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_LQR.bed"), run_dir=config["run_dir"],
-                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "LQR_count_results", "{bam_sample}_sub{index}_LQR.bed"),
+                             run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"])))
     message:
         "Count the positions with low sequence quality"
     params:
         qv = config["qv"],
         script_path = os.path.join(config["scripts_dir"], "LQR_counting.py"),
-        run_dir= os.path.join(config["run_dir"], "temporal_files"),
-        out_dir= os.path.join(config["run_dir"], "temporal_files")
+        run_dir= os.path.join(config["run_dir"], "temporal_files", "sequtils_results"),
+        out_dir= os.path.join(config["run_dir"], "temporal_files",  "LQR_count_results")
     shell:
         """
         python3 {params.script_path} -q {params.qv} -i {params.run_dir} -o {params.out_dir}
@@ -196,8 +196,8 @@ def return_total_number_positions(wildcards):
 
 rule lqr_proportion:
     input:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}_LQR.bed"), run_dir=config["run_dir"],
-                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "LQR_count_results", "{bam_sample}_sub{index}_LQR.bed"),
+                             run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"])))
     output:
         os.path.join(config["run_dir"], "temporal_files", "lqr_proportions.txt")
     message:
@@ -215,7 +215,7 @@ rule create_LQRs_plot:
     input:
         os.path.join(config["run_dir"], "temporal_files", "lqr_proportions.txt")
     output:
-        os.path.join(config["run_dir"], "LQR_proportion_plot.png")
+        os.path.join(config["run_dir"], "OUTPUT_FILES", "LQR_proportion_plot.png")
     message:
         "Create a LQR proportion lineplot"
     params:
@@ -225,7 +225,7 @@ rule create_LQRs_plot:
         amp_number=config["amp_number"],
         m_reads= lambda wildcards: return_number_of_mapped_reads(wildcards),
         points=config["points"],
-        output_dir=config["run_dir"],
+        output_dir=os.path.join(config["run_dir"], "OUTPUT_FILES"),
         width = config["lqr_plot_width"],
         height = config["lqr_plot_height"]
     shell:
@@ -237,11 +237,11 @@ rule create_LQRs_plot:
 
 rule make_bai:
     input:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
-                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam"),
+                             run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"])))
     output:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam.bai"), run_dir=config["run_dir"],
-                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+        expand(os.path.join("{run_dir}", "temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam.bai"),
+                             run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"])))
     message:
         "Create a BAI index"
     run:
@@ -252,12 +252,12 @@ rule make_bai:
 
 rule coverage_analysis:
     input:
-        bam = expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam"), run_dir=config["run_dir"],
-                            bam_sample=config["bam_sample"], index=range(int(config["points"]))) ,
-        bai = expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.bam.bai"), run_dir=config["run_dir"],
-                            bam_sample=config["bam_sample"], index=range(int(config["points"])))
+        bam = expand(os.path.join("{run_dir}", "temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam"),
+                                   run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"]))) ,
+        bai = expand(os.path.join("{run_dir}", "temporal_files", "subsampling_results", "{bam_sample}_sub{index}.bam.bai"),
+                                   run_dir=config["run_dir"], bam_sample=config["bam_sample"], index=range(int(config["points"])))
     output:
-        expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.amplicon.cov.tsv"),
+        expand(os.path.join("{run_dir}", "temporal_files", "coverage_analysis_results", "{bam_sample}_sub{index}.amplicon.cov.tsv"),
                                         run_dir=config["run_dir"], bam_sample=config["bam_sample"],
                                         index=range(int(config["points"])))
     message:
@@ -266,7 +266,7 @@ rule coverage_analysis:
         ref = config["ref_genome"] ,
         cov = config["path_to_analyze_cov"] ,
         amp = os.path.join(config["run_dir"], config["designed_amplicons"]) ,
-        out_dir = os.path.join(config["run_dir"], "temporal_files")
+        out_dir = os.path.join(config["run_dir"], "temporal_files", "coverage_analysis_results")
     run:
         for el in input.bam:
             command = """cwltool --outdir {params.out_dir} {params.cov} --aligned_to_genome_indexed_reads {el} \
@@ -277,11 +277,11 @@ rule coverage_analysis:
 rule create_coverage_table:
     input:
         map_reads = os.path.join(config["run_dir"], "temporal_files", f'{config["bam_sample"]}_number_of_mapped_reads.txt') ,
-        tsv_files = expand(os.path.join("{run_dir}", "temporal_files", "{bam_sample}_sub{index}.amplicon.cov.tsv"),
-                                        run_dir=config["run_dir"], bam_sample=config["bam_sample"],
-                                        index=range(int(config["points"])))
+        tsv_files = expand(os.path.join("{run_dir}", "temporal_files", "coverage_analysis_results",
+                           "{bam_sample}_sub{index}.amplicon.cov.tsv"), run_dir=config["run_dir"],
+                           bam_sample=config["bam_sample"], index=range(int(config["points"])))
     output:
-        os.path.join(config["run_dir"], "coverage_table.txt")
+        os.path.join(config["run_dir"], "OUTPUT_FILES", "coverage_table.txt")
     message:
         "Create a coverage table"
     params:
@@ -292,7 +292,7 @@ rule create_coverage_table:
         amp =  config["amp_number"],
         m_reads= lambda wildcards: return_number_of_mapped_reads(wildcards),
         corr=config["correction_coeff"],
-        output_dir = config["run_dir"]
+        output_dir=os.path.join(config["run_dir"], "OUTPUT_FILES"),
     shell:
         """
         python3 {params.script_path} -t {input.tsv_files} -f {params.f_point} -l {params.l_point} -p {params.points} -a\
@@ -302,14 +302,14 @@ rule create_coverage_table:
 
 rule create_coverage_heatmap:
     input:
-        os.path.join(config["run_dir"],"coverage_table.txt")
+        os.path.join(config["run_dir"], "OUTPUT_FILES", "coverage_table.txt")
     output:
-        os.path.join(config["run_dir"], "heatmap_coverage.png")
+        os.path.join(config["run_dir"], "OUTPUT_FILES", "heatmap_coverage.png")
     message:
         "Create a coverage heatmap"
     params:
         script_path = os.path.join(config["scripts_dir"],"heatmap_coverage.py"),
-        output_dir = config["run_dir"],
+        output_dir = os.path.join(config["run_dir"], "OUTPUT_FILES"),
         width=config["heatmap_width"],
         height=config["heatmap_height"]
     shell:

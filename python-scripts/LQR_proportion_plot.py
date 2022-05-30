@@ -1,13 +1,13 @@
 import argparse
 import matplotlib.pyplot as plt
 import pandas as pd
-import pathlib
 import seaborn as sns
 import os.path
+from pathlib import Path
 
 
 def table_for_plot(first_point: int, last_point: int, points: int, amp_number: int, mapped_reads: int, input_file:
-                   pathlib.PosixPath) -> pd.DataFrame:
+                   Path) -> pd.DataFrame:
     """
     :param first_point: The first point among numbers of reads per amplicon
     :param last_point: The last point among numbers of reads per amplicon
@@ -36,7 +36,7 @@ def table_for_plot(first_point: int, last_point: int, points: int, amp_number: i
     return df
 
 
-def lqr_plot(df: pd.DataFrame, output_dir: pathlib.PosixPath, figure_width: float, figure_height: float):
+def lqr_plot(df: pd.DataFrame, output_dir: Path, figure_width: float, figure_height: float):
     """
     :param figure_width: The width of the LQR plot
     :param figure_height: The height of the LQR plot
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--amp_number", type=int, help="The number of amplicons in a panel")
     parser.add_argument("-m", "--mapped_reads", type=int, help="The number of mapped reads in a .bam file")
     parser.add_argument("-i", "--input_file", help="The path to input file")
-    parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-o", "--output_dir", type=lambda p: Path(p).absolute(),
                         help="The path to output file directory")
     parser.add_argument("-w", "--figure_width", type=float, default=10, help="The width of the LQR plot")
     parser.add_argument("-e", "--figure_height", type=float, default=6, help="The height of the LQR plot")

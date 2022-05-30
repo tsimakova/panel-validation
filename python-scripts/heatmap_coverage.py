@@ -2,11 +2,11 @@ import argparse
 import os.path
 import matplotlib.pyplot as plt
 import pandas as pd
-import pathlib
 import seaborn as sns
+from pathlib import Path
 
 
-def heatmap(input_file: pathlib.PosixPath, output_dir: pathlib.PosixPath, figure_width: float, figure_height: float):
+def heatmap(input_file: Path, output_dir: Path, figure_width: float, figure_height: float):
     """
     :param input_file: The path to input file
     :param output_dir: The path to output file directory
@@ -28,9 +28,9 @@ def main(input_file, output_dir, figure_width, figure_height):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for coverage heatmap")
-    parser.add_argument("-i", "--input_file", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-i", "--input_file", type=lambda p: Path(p).absolute(),
                         help="The path to input file")
-    parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-o", "--output_dir", type=lambda p: Path(p).absolute(),
                         help="The path to output files")
     parser.add_argument("-w", "--figure_width", type=float, default=10,
                         help="The width of the heatmap")

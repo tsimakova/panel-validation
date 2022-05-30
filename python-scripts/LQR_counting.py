@@ -1,8 +1,8 @@
 import argparse
 import os
-import pathlib
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
@@ -17,7 +17,7 @@ class BedParse:
         return '\t'.join([self.contig, self.start, self.stop, self.fwd_cov, self.rev_cov])
 
 
-def parse_bed(qv: int, input_dir: pathlib.PosixPath, output_dir: pathlib.PosixPath):
+def parse_bed(qv: int, input_dir: Path, output_dir: Path):
     """
     :param qv: The quality threshold
     :param input_dir: The path to input files directory
@@ -49,9 +49,9 @@ def main(quality_threshold, input_dir, output_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Script for LQR counting")
     parser.add_argument("-q", "--quality_threshold", type=int, help="The quality threshold")
-    parser.add_argument("-i", "--input_dir", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-i", "--input_dir", type=lambda p: Path(p).absolute(),
                         help="The path to input files directory")
-    parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-o", "--output_dir", type=lambda p: Path(p).absolute(),
                         help="The path to output files directory")
     args = parser.parse_args()
     main(quality_threshold=args.quality_threshold, input_dir=args.input_dir, output_dir=args.output_dir)

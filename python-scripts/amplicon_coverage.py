@@ -3,13 +3,13 @@ import os.path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pathlib
 import seaborn as sns
+from pathlib import Path
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
 
-def create_table(input_file: pathlib.PosixPath) -> pd.DataFrame:
+def create_table(input_file: Path) -> pd.DataFrame:
     """
     :param input_file: The path to VariFind or Oncoscope coverage analysis results
     :return: Sorted pd.DataFrame
@@ -63,8 +63,7 @@ def add_prediction(data_sorted: pd.DataFrame, y_predict: np.ndarray, under_ratio
 
 
 def amp_scatterplot(sample_name: str, data_sorted: pd.DataFrame, under_amplicons: pd.DataFrame,
-                    over_amplicons: pd.DataFrame, output_dir: pathlib.PosixPath, figure_width: float,
-                    figure_height: float):
+                    over_amplicons: pd.DataFrame, output_dir: Path, figure_width: float, figure_height: float):
     """
     :param sample_name: sample name for output files
     :param data_sorted: sorted pd.DataFrame
@@ -90,7 +89,7 @@ def amp_scatterplot(sample_name: str, data_sorted: pd.DataFrame, under_amplicons
 
 
 def create_output_table(sample_name: str, under_amplicons: pd.DataFrame, over_amplicons: pd.DataFrame,
-                        output_dir: pathlib.PosixPath):
+                        output_dir: Path):
     """
     :param sample_name: sample name for output files
     :param under_amplicons: pd.DataFrame with undercovered amplicons
@@ -125,9 +124,9 @@ if __name__ == "__main__":
                         help="The ratio of observed to predicted relative coverage for undercovered amplicons")
     parser.add_argument("-o", "--over_ratio", type=float, default=1.3,
                         help="The ratio of observed to predicted relative coverage for overcovered amplicons")
-    parser.add_argument("-i", "--input_files", nargs="+", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-i", "--input_files", nargs="+", type=lambda p: Path(p).absolute(),
                         help="The path to input files")
-    parser.add_argument("-d", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-d", "--output_dir", type=lambda p: Path(p).absolute(),
                         help="The path to the output files directory")
     parser.add_argument("-w", "--figure_width", type=float, default=10,
                         help="The width of the linear regression plot")

@@ -10,17 +10,31 @@ bam_sample:
 # ex. "nsclc_target_regions.bed"
 tagret_regions:
 
+# Enter the name of a BED file containing amplicons (with extension)
+# ex. "HPL_amplicons.bed"
+designed_amplicons:
+
+# Enter the absolute path to FASTA file with human reference genome:
+# ex. "/some_directories/GRCh38_latest_genomic.fna"
+# the FAI file is also required to be in the same directory as a FASTA file
+ref_genome:
+
 amplicon_type: ["undercovered", "overcovered"]
 
-# Enter the absolute path to working directory (put the BAM-file, BED-files with target regions and TVS file with coverage analysis result in this folder):
+# Enter the absolute path to working directory (put the BAM-file, BED-files with target regions and amplicons and
+# TVS file with coverage analysis result in this folder):
 run_dir:
 
 # Enter the absolute path to python-scripts directory:
 scripts_dir:
 
 # Enter the absolute path to the sequtils.jar file:
-# ex. /some_directories/sequtils.jar
+# ex. "/some_directories/sequtils.jar"
 path_to_sequtils:
+
+# Enter the absolute path to analyze_coverage-2.cwl file:
+# ex. "/some_directories/analyze_coverage-2.cwl"
+path_to_analyze_cov:
 
 # Enter the threshold for R2 in linear regression:
 threshold: 0.85

@@ -1,11 +1,11 @@
 import argparse
 import json
-import pathlib
 import os.path
+from pathlib import Path
 
 
 def get_params(first_point: int, last_point: int, points: int, amp_number: int, mapped_reads: int,
-               output_dir: pathlib.PosixPath):
+               output_dir: Path):
     """
     :param first_point: The first point among numbers of reads per amplicon
     :param last_point: The last point among numbers of reads per amplicon
@@ -17,6 +17,11 @@ def get_params(first_point: int, last_point: int, points: int, amp_number: int, 
     # Check the first and last points
     if last_point - first_point <= 0:
         raise ValueError("The last point is less than or equal to the first point")
+    # Check that the multiplication of the maximum number of reads per amplicon and the number of amplicons in a panel
+    # does not exceed the number of reads in the bam file
+    if mapped_reads // amp_number < last_point:
+        last_point = mapped_reads // amp_number
+        print(f"The last point (maximum number of reads per amplicon) was changed to {last_point}")
     # Count the number of reads per amplicon for each point and create a dictionary:
     step = (last_point - first_point) // (points - 1)
     read_per_amp = []
@@ -45,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--points", type=int, help="The number of points")
     parser.add_argument("-a", "--amp_number", type=int, help="The number of amplicons in a panel")
     parser.add_argument("-m", "--mapped_reads", type=int, help="The number of mapped reads in a .bam file")
-    parser.add_argument("-o", "--output_dir", type=lambda p: pathlib.Path(p).absolute(),
+    parser.add_argument("-o", "--output_dir", type=lambda p: Path(p).absolute(),
                         help="The path to output files")
     args = parser.parse_args()
     main(first_point=args.first_point, last_point=args.last_point, points=args.points, amp_number=args.amp_number,

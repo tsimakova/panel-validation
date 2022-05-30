@@ -110,6 +110,8 @@ python3  amplicon_coverage.py -i <input_files> -d <output_files_dir> -t 0.85 -u 
 
 This script calculates the parameters for BAM subsampling - the percentage of reads that should remain in the initial BAM file after subsampling, and saves the result in a JSON file.
 
+The script also checks that the minimum number of reads per amplicon does not exceed the maximum number of reads per amplicon and that the multiplication of the maximum number of reads per amplicon and the number of amplicons in the panel does not exceed the number of reads in the BAM file.
+
 When running the script you will be requested to select the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in the panel, and the number of mapped reads in a BAM file. 
 
 ### Input
@@ -165,6 +167,8 @@ This script plots the percentage of LQRs for each selected points (the number of
 
 When running the script you will be requested to select the path to input TXT file, output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, and the width and height of LQR percentage plot.
 
+The script also checks that the minimum number of reads per amplicon does not exceed the maximum number of reads per amplicon and that the multiplication of the maximum number of reads per amplicon and the number of amplicons in the panel does not exceed the number of reads in the BAM file.
+
 When the script completed, we received a PNG file, containing the plot of LQR proportion in target regions. 
 
 ![LQR_proportion_plot](output_examples/LQR_proportion_plot.png)
@@ -174,6 +178,8 @@ When the script completed, we received a PNG file, containing the plot of LQR pr
 -f, --first_point: The first point among numbers of reads per amplicon
 -l, --last_point: The last point among numbers of reads per amplicon
 -p, --points: The number of points (numbers of reads per amplicon)
+-a, --amp_number: The number of amplicons in a panel
+-m, --mapped_reads: The number of mapped reads in a BAM file
 -i, --input_file: The path to input TXT file, proportion of positions that belong to the region with low sequencing quality for each point
 -o, --output_dir: The path to output files
 -w, --figure_width: The width of the LQR plot (default: 10)
@@ -183,7 +189,7 @@ When the script completed, we received a PNG file, containing the plot of LQR pr
 ### Run script
 
 ```commandline
-python3 LQR_proportion_plot.py -i <input_file> -o <output_file_dir> -f <first_point> -l <last_point> -p <number_of_points> -w 10 -e 6
+python3 LQR_proportion_plot.py -i <input_file> -o <output_file_dir> -f <first_point> -l <last_point> -p <number_of_points> -a <number_of_amplicons> -m <number_of_mapped_reads> -w 10 -e 6
 ```
 
 ### Output
@@ -197,20 +203,26 @@ LQR_proportion_plot.png
 
 This script creates the table for selection the number of reads per sample according to amplicon coverage. Row names correspond to the number of reads per amplicon, column names - to the number of reads per sample (taking into account the correction coefficient, which is set as a parameter). This table allows the user to choose an appropriate number of reads per sample and calculate how many samples could be multiplexing on a sequencing run.
 
-When running the script you will be requested to select the output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in a panel, and a correction coefficient. When the script completed, we received a TXT file, containing the proportion of amplicons (%) with the target coverage.
+When running the script you will be requested the input TVS files, output file directory, the range of the number of reads per amplicon (the first and last points), the number of points, the number of amplicons in a panel, and a correction coefficient.
+
+The script also checks that the minimum number of reads per amplicon does not exceed the maximum number of reads per amplicon and that the multiplication of the maximum number of reads per amplicon and the number of amplicons in the panel does not exceed the number of reads in the BAM file.
+
+When the script completed, we received a TXT file, containing the proportion of amplicons (%) with the target coverage.
 
 ```commandline
+-t, ---tsv_files: The list of tsv files, obtained after coverage analysis"
 -f, --first_point: The first point among numbers of reads per amplicon
 -l, --last_point: The last point among numbers of reads per amplicon
 -p, --points: The number of points (numbers of reads per amplicon)
 -a, --amp_number: The number of amplicons in a panel
+-m, --mapped_reads: The number of mapped reads in a BAM file
 -с, --correction: The correction coefficient for the number of reads per sample (default: 15)
 -o, --output_dir: The path to output files
 ```
 ### Run script
 
 ```commandline
-python3 coverage_table.py -o <output_file_dir> -f <first_point> -l <last_point> -p <number_of_points> -a <number_of_amplicons> -c 15
+python3 coverage_table.py -o <output_file_dir> -t <list_of_tsv_files> -f <first_point> -l <last_point> -p <number_of_points> -a <number_of_amplicons> -m <number_of_mapped_reads> -c 15
 ```
 
 ### Output
@@ -222,7 +234,7 @@ coverage_table.txt
 
 ### 6. Script for visualization of the table for calculating the number of reads per sample
 
-This script creates the heatmap of proportions of amplicons (%) with the target coverage. To run, it needs a TXT file that contains table for calculating the number of reads per sample.
+This script creates the heatmap of proportions of amplicons (%) with the target coverage. To run, it needs a TXT file containing the proportion of amplicons (%) with the target coverage.
 
 When running the script you will be requested to select the path to input TXT file, output file directory, and the width and height of a heatmap. When the script completed, we received a PNG file, containing the plot of LQR proportion in a target region. 
 
@@ -249,7 +261,9 @@ heatmap_coverage.png
 
 ## Snakemake pipeline
 
-To run the snakemake pipeline, you need to put the BAM file, BED file with target regions and TSV file with coverage analysis results in a working directory and specify the path to this folder in the configuration file. You also need to enter the prefix of the BAM and TSV files, and the name of BED file (with extension), specify the path to sequtils.jar and other params. 
+To run the snakemake pipeline, you need to put the BAM file, BED files with target regions and amplicons and TSV file with coverage analysis results in a working directory and specify the path to this folder in the configuration file. You also need to enter the prefix of the BAM and TSV files, and the name of BED file (with extension), specify the path to sequtils.jar and other params. 
+
+Pipeline output files will be replaced to the OUTPUT_FILES folder.
 
 ### Pipeline input:
 ```commandline
